@@ -1,3 +1,5 @@
+package com.tritus
+
 import com.tritus.persist.Persist
 
 @Persist
