@@ -1,21 +1,22 @@
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.*
 
-class PersistVisitor(private val codeGenerator: CodeGenerator) : KSEmptyVisitor<Unit, Unit>() {
+class PersistVisitor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) : KSEmptyVisitor<Unit, Unit>() {
     override fun defaultHandler(node: KSNode, data: Unit) {
         val persistDefinition = node as KSClassDeclaration
         createDataHolder(persistDefinition)
         createProvider(persistDefinition)
     }
 
-    private fun KSClassDeclaration.getDataHolderClassName() = "${simpleName}_Data}"
+    private fun KSClassDeclaration.getDataHolderClassName() = "${simpleName.asString()}_Data"
 
-    private fun KSClassDeclaration.getProviderClassName() = "${simpleName}Provider}"
+    private fun KSClassDeclaration.getProviderClassName() = "${simpleName.asString()}Provider"
 
     private fun createDataHolder(persistDefinition: KSClassDeclaration) {
         val fileName = persistDefinition.getDataHolderClassName()
@@ -28,7 +29,8 @@ class PersistVisitor(private val codeGenerator: CodeGenerator) : KSEmptyVisitor<
             packageName,
             fileName
         ).use { dataHolderFile ->
-            dataHolderFile.write(fileSpec.toString().toByteArray())
+            val fileBytes = fileSpec.toString().toByteArray()
+            dataHolderFile.write(fileBytes)
         }
     }
 
@@ -51,7 +53,7 @@ class PersistVisitor(private val codeGenerator: CodeGenerator) : KSEmptyVisitor<
             )
             constructorBuilder.addParameter(propertyName, propertyClassName)
             classBuilder.addProperty(
-                PropertySpec.builder(propertyName, propertyClassName)
+                PropertySpec.builder(propertyName, propertyClassName, KModifier.OVERRIDE)
                     .initializer(propertyName)
                     .build()
             )
@@ -89,7 +91,7 @@ class PersistVisitor(private val codeGenerator: CodeGenerator) : KSEmptyVisitor<
             newBuilder.addParameter(propertyName, propertyClassName)
         }
         newBuilder.addCode("""
-            ${persistDefinition.getDataHolderClassName()}(${persistDefinition.getAllProperties().map { it.simpleName.asString() }.joinToString(", ")})
+            return ${persistDefinition.getDataHolderClassName()}(${persistDefinition.getAllProperties().map { it.simpleName.asString() }.joinToString(", ")})
         """.trimIndent())
         newBuilder.returns(ClassName(persistDefinition.packageName.asString(), persistDefinition.simpleName.asString()))
         classBuilder.addFunction(newBuilder.build())

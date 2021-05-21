@@ -9,5 +9,5 @@ class PersistProcessorProvider: SymbolProcessorProvider {
         kotlinVersion: KotlinVersion,
         codeGenerator: CodeGenerator,
         logger: KSPLogger
-    ): SymbolProcessor = PersistProcessor(codeGenerator)
+    ): SymbolProcessor = PersistProcessor(codeGenerator, logger)
 }
