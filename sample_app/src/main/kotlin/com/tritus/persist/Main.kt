@@ -11,7 +11,7 @@ fun main() {
     Database.Schema.create(driver)
 
     val database = Database(driver)
-    val playerQueries: PlayerQueries = database.playerQueries
+    val playerQueries: TestDataQueries = database.testDataQueries
 
     println(playerQueries.selectAll().executeAsList())
 // Prints [HockeyPlayer(15, "Ryan Getzlaf")]

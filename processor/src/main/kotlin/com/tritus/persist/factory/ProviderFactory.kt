@@ -34,7 +34,18 @@ internal object ProviderFactory {
             newBuilder.addParameter(property.name, property.className)
         }
         newBuilder.returns(definition.className)
-        newBuilder.addCode("return ${definition.dataHolderClassName}(${definition.allProperties.joinToString { it.name }})")
+        newBuilder.addCode(
+            """
+            val database = PersistDatabaseProvider.getDatabase()
+            val rawData = database.${definition.dataHolderClassName}Queries.transactionWithResult {
+                database.${definition.dataHolderClassName}Queries.createNew()
+                database.${definition.dataHolderClassName}Queries.getLastRecord()
+            }
+            return object : ${definition.simpleName} {
+            ${definition.allProperties.joinToString("\n") { "override val ${it.name} = rawData.${it.name}" }}
+            }
+            """.trimIndent()
+        )
         return newBuilder.build()
     }
 }

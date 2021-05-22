@@ -22,7 +22,6 @@ sourceSets {
     main {
         java {
             srcDir("${buildDir.absolutePath}/generated/ksp/main/kotlin")
-            srcDir("${buildDir.absolutePath}/generated/ksp/main/resources")
         }
     }
 }
@@ -30,7 +29,6 @@ sourceSets {
 sqldelight {
     database("Database") {
         packageName = "com.tritus.persist"
-        sourceFolders = listOf("${buildDir.absolutePath}/generated/ksp/main/resources")
     }
 }
 

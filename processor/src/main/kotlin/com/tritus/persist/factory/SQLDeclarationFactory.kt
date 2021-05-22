@@ -1,41 +1,44 @@
 package com.tritus.persist.factory
 
-import com.google.devtools.ksp.processing.CodeGenerator
 import com.tritus.persist.model.PersistentDataDefinition
-import java.io.File
 
 internal object SQLDeclarationFactory {
-    fun create(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
-        val fileName = definition.containingFile.fileName.replace(".kt", ".sq")
-        val pathInSource = definition.packageName.replace(".", "/")
-        val sourceFolder = definition.containingFile.filePath.replace(pathInSource, "").split("/").dropLast(3).joinToString("/")
-        val folder = File("$sourceFolder/sqldelight/$pathInSource")
-        folder.mkdirs()
-        val file = File(folder, fileName)
-        file.writeBytes(
-            """
-CREATE TABLE hockeyPlayer (
-  player_number INTEGER NOT NULL,
-  full_name TEXT NOT NULL
-);
-
-CREATE INDEX hockeyPlayer_full_name ON hockeyPlayer(full_name);
-
-INSERT INTO hockeyPlayer (player_number, full_name)
-VALUES (15, 'Ryan Getzlaf');
-
-selectAll:
-SELECT *
-FROM hockeyPlayer;
-
-insert:
-INSERT INTO hockeyPlayer(player_number, full_name)
-VALUES (?, ?);
-
-insertFullPlayerObject:
-INSERT INTO hockeyPlayer(player_number, full_name)
-VALUES ?;
-        """.trimIndent().toByteArray()
-        )
+    fun create(definition: PersistentDataDefinition) {
+        definition.sqlDefinitionFile.parentFile.mkdirs()
+        definition.sqlDefinitionFile.writeBytes(createSqlDefinitionFileContent(definition).toByteArray())
     }
+
+    private fun createSqlDefinitionFileContent(definition: PersistentDataDefinition): String = """
+${createTableCreationBlock(definition)}
+
+${createInsertMethodBlock(definition)}
+
+${createGetLastRecordBlock(definition)}
+    """.trimIndent()
+
+    private fun createGetLastRecordBlock(definition: PersistentDataDefinition): String = """
+getLastRecord:
+SELECT * FROM ${definition.dataHolderClassName} ORDER BY ${definition.idProperty.name} DESC LIMIT 1;
+    """
+
+    private fun createTableCreationBlock(definition: PersistentDataDefinition): String = """
+CREATE TABLE ${definition.dataHolderClassName} (
+${createAttributesDefinitionBlock(definition)}
+);
+    """
+
+    private fun createAttributesDefinitionBlock(definition: PersistentDataDefinition): String {
+        val idDefinition =
+            "${definition.idProperty.name} ${definition.idProperty.sqlTypeName} PRIMARY KEY AUTOINCREMENT"
+        val propertyDefinitions = (definition.allProperties - definition.idProperty).map { property ->
+            "${property.name} ${property.sqlTypeName}"
+        }
+        return (listOf(idDefinition) + propertyDefinitions).joinToString(",\n")
+    }
+
+    private fun createInsertMethodBlock(definition: PersistentDataDefinition): String = """
+createNew:
+INSERT INTO ${definition.dataHolderClassName}(${definition.dataProperties.joinToString { it.name }})
+VALUES (${definition.dataProperties.joinToString { "?" }});
+    """
 }

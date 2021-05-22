@@ -1,20 +1,26 @@
 package com.tritus.persist.adapter
 
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ClassName
 import com.tritus.persist.model.PersistentPropertyDefinition
 
 internal object PersistentPropertyDefinitionAdapter {
-    fun KSPropertyDeclaration.toPersistentPropertyDefinition() : PersistentPropertyDefinition {
+    fun KSPropertyDeclaration.toPersistentPropertyDefinition(): PersistentPropertyDefinition {
         val name = simpleName.asString()
-        val parameterTypeDeclaration = type.resolve().declaration
-
+        val parameterType = type.resolve()
+        val parameterTypeDeclaration = parameterType.declaration
+        val parameterTypeName = parameterTypeDeclaration.simpleName.asString()
+        val sqlRawTypeName = when (parameterTypeName) {
+            "String" -> "TEXT"
+            "Long" -> "INTEGER"
+            else -> throw IllegalArgumentException("Cannot store $parameterTypeName")
+        }
+        val sqlNullabilitySuffix = if (parameterType.nullability == Nullability.NOT_NULL) " NOT NULL" else ""
         return PersistentPropertyDefinition(
-            name,
-            ClassName(
-                parameterTypeDeclaration.packageName.asString(),
-                parameterTypeDeclaration.simpleName.asString()
-            )
+            name = name,
+            className = ClassName(parameterTypeDeclaration.packageName.asString(), parameterTypeName),
+            sqlTypeName = "$sqlRawTypeName$sqlNullabilitySuffix"
         )
     }
 }
