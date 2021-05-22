@@ -8,30 +8,32 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.TypeSpec
 
 internal object PersistDatabaseProviderFactory {
-    private val classSimpleName = "PersistDatabaseProvider"
-
     fun create(codeGenerator: CodeGenerator) {
-        val fileSpec = FileSpec.builder("", classSimpleName)
+        val fileSpec = FileSpec.builder(getDatabasePackage(), getClassSimpleName())
+            .addImport("com.squareup.sqldelight.sqlite.driver", "JdbcSqliteDriver")
             .addType(createProviderClass())
             .build()
         codeGenerator.createNewFile(
             Dependencies(true),
-            "",
-            classSimpleName
+            getDatabasePackage(),
+            getClassSimpleName()
         ).use { dataHolderFile -> dataHolderFile.write(fileSpec.toString().toByteArray()) }
-        """PersistDatabaseProvider.getDatabase()"""
     }
 
-    private fun createProviderClass() = TypeSpec.objectBuilder(classSimpleName)
+    private fun createProviderClass() = TypeSpec.objectBuilder(getClassSimpleName())
         .addFunction(createGetDatabaseFunSpec())
         .build()
 
     private fun createGetDatabaseFunSpec() = FunSpec.builder("getDatabase")
-        .returns(ClassName("", "PersistDatabase"))
+        .returns(ClassName(getDatabasePackage(), "Database"))
         .addCode("""
             val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-            PersistDatabase.Schema.create(driver)
-            return PersistDatabase(driver)
+            Database.Schema.create(driver)
+            return Database(driver)
         """.trimIndent())
         .build()
+
+    private fun getClassSimpleName() = "PersistDatabaseProvider"
+
+    private fun getDatabasePackage() = "com.tritus.persist"
 }
