@@ -14,7 +14,7 @@ internal class PersistProcessor(private val codeGenerator: CodeGenerator, privat
         val processableSymbols = annotatedSymbols
             .filterIsInstance<KSClassDeclaration>()
             .filter { it.classKind == ClassKind.INTERFACE && it.validate() }
-        processableSymbols.forEach { it.accept(PersistVisitor(codeGenerator, logger), Unit) }
+        processableSymbols.forEach { it.accept(PersistVisitor(codeGenerator), Unit) }
         return annotatedSymbols - processableSymbols
     }
 }

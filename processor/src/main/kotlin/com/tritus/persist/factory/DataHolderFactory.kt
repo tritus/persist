@@ -2,21 +2,18 @@ package com.tritus.persist.factory
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
-import com.tritus.persist.extension.getDataHolderClassName
+import com.tritus.persist.model.PersistentDataDefinition
 
 internal object DataHolderFactory {
-    fun createDataHolder(codeGenerator: CodeGenerator, persistDefinition: KSClassDeclaration) {
-        val fileName = persistDefinition.getDataHolderClassName()
-        val packageName = persistDefinition.packageName.asString()
-        val fileSpec = FileSpec.builder(packageName, fileName)
-            .addType(createDataHolderClass(persistDefinition))
+    fun createDataHolder(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
+        val fileSpec = FileSpec.builder(definition.packageName, definition.dataHolderClassName)
+            .addType(createDataHolderClass(definition))
             .build()
         codeGenerator.createNewFile(
-            Dependencies(true, persistDefinition.containingFile!!),
-            packageName,
-            fileName
+            Dependencies(true, definition.containingFile),
+            definition.packageName,
+            definition.dataHolderClassName
         ).use { dataHolderFile ->
             val fileBytes = fileSpec.toString().toByteArray()
             dataHolderFile.write(fileBytes)
@@ -24,27 +21,16 @@ internal object DataHolderFactory {
     }
 
 
-    private fun createDataHolderClass(persistDefinition: KSClassDeclaration): TypeSpec {
-        val className = persistDefinition.getDataHolderClassName()
+    private fun createDataHolderClass(definition: PersistentDataDefinition): TypeSpec {
+        val className = definition.dataHolderClassName
         val classBuilder = TypeSpec.classBuilder(className)
-        classBuilder.addSuperinterface(
-            ClassName(
-                persistDefinition.packageName.asString(),
-                persistDefinition.simpleName.asString()
-            )
-        )
+        classBuilder.addSuperinterface(definition.className)
         val constructorBuilder = FunSpec.constructorBuilder()
-        persistDefinition.getAllProperties().forEach { property ->
-            val propertyName = property.simpleName.asString()
-            val parameterTypeDeclaration = property.type.resolve().declaration
-            val propertyClassName = ClassName(
-                parameterTypeDeclaration.packageName.asString(),
-                parameterTypeDeclaration.simpleName.asString()
-            )
-            constructorBuilder.addParameter(propertyName, propertyClassName)
+        definition.allProperties.forEach { property ->
+            constructorBuilder.addParameter(property.name, property.className)
             classBuilder.addProperty(
-                PropertySpec.builder(propertyName, propertyClassName, KModifier.OVERRIDE)
-                    .initializer(propertyName)
+                PropertySpec.builder(property.name, property.className, KModifier.OVERRIDE)
+                    .initializer(property.name)
                     .build()
             )
         }
