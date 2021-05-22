@@ -5,7 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class PersistProcessorProvider: SymbolProcessorProvider {
+internal class PersistProcessorProvider: SymbolProcessorProvider {
     override fun create(
         options: Map<String, String>,
         kotlinVersion: KotlinVersion,
