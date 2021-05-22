@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.tritus.persist.model.PersistentDataDefinition
 
 internal object ProviderFactory {
-    fun createProvider(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
+    fun create(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
         val fileName = definition.providerClassName
         val packageName = definition.packageName
         val fileSpec = FileSpec.builder(packageName, fileName)

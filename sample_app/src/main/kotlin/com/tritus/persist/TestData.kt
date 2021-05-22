@@ -5,8 +5,8 @@ import com.tritus.persist.annotation.PersistentId
 
 @Persist
 interface TestData {
-    @PersistentId
-    val id: Long
-    val name: String
-    val description: String
+  @PersistentId
+  val id: Long
+  val name: String
+  val description: String
 }

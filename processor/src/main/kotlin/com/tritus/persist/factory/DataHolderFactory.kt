@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.*
 import com.tritus.persist.model.PersistentDataDefinition
 
 internal object DataHolderFactory {
-    fun createDataHolder(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
+    fun create(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
         val fileSpec = FileSpec.builder(definition.packageName, definition.dataHolderClassName)
             .addType(createDataHolderClass(definition))
             .build()
