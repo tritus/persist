@@ -19,7 +19,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir("${buildDir.absolutePath}/generated/ksp/main")
+            srcDir("${buildDir.absolutePath}/generated/ksp/main/kotlin")
         }
     }
 }
