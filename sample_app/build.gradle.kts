@@ -15,3 +15,11 @@ dependencies {
     implementation(project(":processor"))
     ksp(project(":processor"))
 }
+
+sourceSets {
+    main {
+        java {
+            srcDir("${buildDir.absolutePath}/generated/ksp/main")
+        }
+    }
+}
