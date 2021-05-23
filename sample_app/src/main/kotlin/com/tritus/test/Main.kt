@@ -1,4 +1,4 @@
-package com.tritus.persist
+package com.tritus.test
 
 fun main() {
     ProviderGenerationTest.testCreationOfData()

@@ -1,4 +1,4 @@
-package com.tritus.persist.model
+package com.tritus.test.model
 
 import com.squareup.kotlinpoet.ClassName
 

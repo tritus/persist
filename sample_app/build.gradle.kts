@@ -27,11 +27,11 @@ sourceSets {
 }
 
 sqldelight {
-    database("Database") {
+    database("PersistDatabase") {
         packageName = "com.tritus.persist"
     }
 }
 
 afterEvaluate {
-    tasks.named("generateMainDatabaseInterface").get().dependsOn("kspKotlin")
+    tasks.named("generateMainPersistDatabaseInterface").get().dependsOn("kspKotlin")
 }

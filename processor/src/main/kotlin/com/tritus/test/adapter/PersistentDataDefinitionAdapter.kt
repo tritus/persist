@@ -1,10 +1,10 @@
-package com.tritus.persist.adapter
+package com.tritus.test.adapter
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
-import com.tritus.persist.model.PersistentDataDefinition
-import com.tritus.persist.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
-import com.tritus.persist.annotation.PersistentId
+import com.tritus.test.model.PersistentDataDefinition
+import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
+import com.tritus.test.annotation.PersistentId
 import java.io.File
 
 internal object PersistentDataDefinitionAdapter {

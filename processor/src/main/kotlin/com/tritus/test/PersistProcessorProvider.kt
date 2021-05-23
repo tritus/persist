@@ -1,4 +1,4 @@
-package com.tritus.persist
+package com.tritus.test
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger

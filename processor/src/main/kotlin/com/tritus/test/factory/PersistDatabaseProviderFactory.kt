@@ -1,4 +1,4 @@
-package com.tritus.persist.factory
+package com.tritus.test.factory
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -6,21 +6,21 @@ import com.squareup.kotlinpoet.*
 
 internal object PersistDatabaseProviderFactory {
     fun create(codeGenerator: CodeGenerator) {
-        val fileSpec = FileSpec.builder(getDatabasePackage(), getClassSimpleName())
+        val fileSpec = FileSpec.builder(databasePackage, classSimpleName)
             .addImport("com.squareup.sqldelight.sqlite.driver", "JdbcSqliteDriver")
             .addType(createProviderClass())
             .build()
         codeGenerator.createNewFile(
             Dependencies(true),
-            getDatabasePackage(),
-            getClassSimpleName()
+            databasePackage,
+            classSimpleName
         ).use { dataHolderFile -> dataHolderFile.write(fileSpec.toString().toByteArray()) }
     }
 
-    private fun createProviderClass() = TypeSpec.objectBuilder(getClassSimpleName())
+    private fun createProviderClass() = TypeSpec.objectBuilder(classSimpleName)
         .addProperty(
             PropertySpec
-                .builder("cachedDatabase", ClassName("", "Database").copy(nullable = true))
+                .builder("cachedDatabase", databaseClassname.copy(nullable = true))
                 .mutable()
                 .addModifiers(KModifier.PRIVATE)
                 .initializer("null")
@@ -32,12 +32,12 @@ internal object PersistDatabaseProviderFactory {
 
     private fun createCreateDatabaseFunSpec() = FunSpec.builder("createDatabase")
         .addModifiers(KModifier.PRIVATE)
-        .returns(ClassName("", "Database"))
+        .returns(databaseClassname)
         .addCode(
             """
             val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-            Database.Schema.create(driver)
-            val newDatabase = Database(driver)
+            ${databaseName}.Schema.create(driver)
+            val newDatabase = ${databaseName}(driver)
             cachedDatabase = newDatabase
             return newDatabase
         """.trimIndent()
@@ -45,15 +45,15 @@ internal object PersistDatabaseProviderFactory {
         .build()
 
     private fun createGetDatabaseFunSpec() = FunSpec.builder("getDatabase")
-        .returns(ClassName(getDatabasePackage(), "Database"))
-        .addCode(
-            """
-            return cachedDatabase ?: createDatabase()
-        """.trimIndent()
-        )
+        .returns(databaseClassname)
+        .addCode("return cachedDatabase ?: createDatabase()")
         .build()
 
-    private fun getClassSimpleName() = "PersistDatabaseProvider"
+    const val classSimpleName = "PersistDatabaseProvider"
 
-    private fun getDatabasePackage() = "com.tritus.persist"
+    const val databaseName = "PersistDatabase"
+
+    const val databasePackage = "com.tritus.persist"
+
+    val databaseClassname = ClassName(databasePackage, databaseName)
 }

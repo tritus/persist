@@ -1,16 +1,18 @@
-package com.tritus.persist.factory
+package com.tritus.test.factory
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.*
-import com.tritus.persist.model.PersistentDataDefinition
+import com.tritus.test.model.PersistentDataDefinition
+import com.tritus.test.utils.trimLines
 
-internal object ProviderFactory {
+internal object DataProviderFactory {
     fun create(codeGenerator: CodeGenerator, definition: PersistentDataDefinition) {
         val fileName = definition.providerClassName
         val packageName = definition.packageName
         val fileSpec = FileSpec.builder(packageName, fileName)
             .addType(createProviderClass(definition))
+            .addImport(PersistDatabaseProviderFactory.databasePackage, PersistDatabaseProviderFactory.classSimpleName)
             .build()
         codeGenerator.createNewFile(
             Dependencies(true, definition.containingFile),
@@ -32,19 +34,23 @@ internal object ProviderFactory {
         .addModifiers(KModifier.PRIVATE)
         .receiver(ClassName(definition.packageName, definition.dataHolderClassName))
         .returns(definition.className)
-        .addCode("""
-return object : ${definition.simpleName} {
-${definition.allProperties.joinToString("\n") { "override val ${it.name} = this@toInterface.${it.name}" }}
-}
-        """)
+        .addCode(
+            """
+            return object : ${definition.simpleName} {
+            ${definition.allProperties.joinToString("\n") { "override val ${it.name} = this@toInterface.${it.name}" }}
+            }
+            """.trimLines()
+        )
         .build()
 
     private fun createRetrieveFunSpec(definition: PersistentDataDefinition) = FunSpec.builder("retrieve")
         .addParameter("id", Long::class)
-        .addCode("""
-            val database = PersistDatabaseProvider.getDatabase()
+        .addCode(
+            """
+            val database = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase()
             return database.${definition.databaseQueriesMethodName}.getRecord(id).executeAsOne().toInterface()
-        """.trimIndent())
+            """.trimIndent()
+        )
         .returns(definition.className)
         .build()
 
@@ -56,7 +62,7 @@ ${definition.allProperties.joinToString("\n") { "override val ${it.name} = this@
         newBuilder.returns(definition.className)
         newBuilder.addCode(
             """
-            val database = PersistDatabaseProvider.getDatabase()
+            val database = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase()
             val rawData = database.${definition.databaseQueriesMethodName}.transactionWithResult<${definition.dataHolderClassName}> {
                 database.${definition.databaseQueriesMethodName}.createNew(${definition.dataProperties.joinToString { it.name }})
                 database.${definition.databaseQueriesMethodName}.getLastRecord().executeAsOne()

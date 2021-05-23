@@ -1,9 +1,9 @@
-package com.tritus.persist.adapter
+package com.tritus.test.adapter
 
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ClassName
-import com.tritus.persist.model.PersistentPropertyDefinition
+import com.tritus.test.model.PersistentPropertyDefinition
 
 internal object PersistentPropertyDefinitionAdapter {
     fun KSPropertyDeclaration.toPersistentPropertyDefinition(): PersistentPropertyDefinition {

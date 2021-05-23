@@ -1,4 +1,4 @@
-package com.tritus.persist
+package com.tritus.test
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -6,9 +6,8 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
-import com.tritus.persist.adapter.PersistentDataDefinitionAdapter.toPersistentDataDefinition
-import com.tritus.persist.annotation.Persist
-import com.tritus.persist.factory.PersistDatabaseProviderFactory
+import com.tritus.test.adapter.PersistentDataDefinitionAdapter.toPersistentDataDefinition
+import com.tritus.test.annotation.Persist
 
 internal class PersistProcessor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
