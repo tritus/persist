@@ -7,6 +7,7 @@ import java.io.File
 internal data class PersistentDataDefinition(
     val simpleName: String,
     val dataHolderClassName: String,
+    val databaseQueriesMethodName: String,
     val providerClassName: String,
     val packageName: String,
     val className: ClassName,

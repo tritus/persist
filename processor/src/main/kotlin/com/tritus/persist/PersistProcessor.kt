@@ -12,7 +12,6 @@ import com.tritus.persist.factory.PersistDatabaseProviderFactory
 
 internal class PersistProcessor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        PersistDatabaseProviderFactory.create(codeGenerator)
         val annotatedSymbols = resolver.getSymbolsWithAnnotation(Persist::class.qualifiedName!!).toList()
         val processableSymbols = annotatedSymbols
             .filterIsInstance<KSClassDeclaration>()

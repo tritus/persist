@@ -32,6 +32,7 @@ internal object PersistentDataDefinitionAdapter {
         return PersistentDataDefinition(
             simpleName = simpleNameString,
             dataHolderClassName = dataHolderClassName,
+            databaseQueriesMethodName = "${dataHolderClassName.replace(Regex("^.")) { it.value.toLowerCase() }}Queries",
             providerClassName = "${simpleNameString}Provider",
             packageName = packageNameString,
             className = ClassName(packageNameString, simpleNameString),

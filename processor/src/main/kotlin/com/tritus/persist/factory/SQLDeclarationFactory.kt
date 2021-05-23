@@ -14,6 +14,13 @@ ${createTableCreationBlock(definition)}
 ${createInsertMethodBlock(definition)}
 
 ${createGetLastRecordBlock(definition)}
+
+${createGetRecordBlock(definition)}
+    """.trimIndent()
+
+    private fun createGetRecordBlock(definition: PersistentDataDefinition): String = """
+getRecord:
+SELECT * FROM ${definition.dataHolderClassName} WHERE ${definition.idProperty.name} = ?;
     """.trimIndent()
 
     private fun createGetLastRecordBlock(definition: PersistentDataDefinition): String = """

@@ -13,7 +13,7 @@ object ProviderGenerationTest {
         val name = "Un Beau nom"
         val description = "et une description"
         val testData: TestData = TestDataProvider.new(name, description)
-        val testDataGotFromElsewhere = TestDataProvider.get(testData.id)
+        val testDataGotFromElsewhere = TestDataProvider.retrieve(testData.id)
         require(testData.id == testDataGotFromElsewhere.id)
         require(testData.name == testDataGotFromElsewhere.name)
         require(testData.description == testDataGotFromElsewhere.description)
