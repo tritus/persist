@@ -1,16 +1,16 @@
 pluginManagement {
-    val kotlinVersion: String by settings
-    val kspVersion: String by settings
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
+        jcenter()
         maven { setUrl("https://www.jetbrains.com/intellij-repository/releases") }
         maven { setUrl("https://jetbrains.bintray.com/intellij-third-party-dependencies") }
+        maven { url = uri(rootProject.projectDir.absolutePath + "/repo") }
     }
     plugins {
-        id("com.google.devtools.ksp") version kspVersion
-        kotlin("jvm") version kotlinVersion
+        id("com.google.devtools.ksp") version ("1.5.0-1.0.0-alpha10")
+        kotlin("jvm") version ("1.5.0")
         id("com.squareup.sqldelight")
     }
     resolutionStrategy {
@@ -26,3 +26,4 @@ rootProject.name = "persist"
 
 include("sample_app")
 include("processor")
+include("persist_plugin")

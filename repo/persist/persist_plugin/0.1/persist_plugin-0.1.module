@@ -1,0 +1,73 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "persist",
+    "module": "persist_plugin",
+    "version": "0.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.3.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.localToProject": "public",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "persist_plugin-0.1.jar",
+          "url": "persist_plugin-0.1.jar",
+          "size": 1467,
+          "sha512": "33fac19939ebdbb5b8de6f5fb168fe378cd9653c7b1bf32898410c93089cca5785064a4c309bc174f28a839f37b36723cc1a056c0b4a7c301f88d8a0066946ef",
+          "sha256": "44b09f1716f5b97ca84e799318a435501c005e08993a9d74caa01c520c1af225",
+          "sha1": "325e24e383e0fb5fef80a827007aaa53c1a0db0d",
+          "md5": "b679acd4a0d1445728d110f6f5172c00"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.localToProject": "public",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.5.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "persist_plugin-0.1.jar",
+          "url": "persist_plugin-0.1.jar",
+          "size": 1467,
+          "sha512": "33fac19939ebdbb5b8de6f5fb168fe378cd9653c7b1bf32898410c93089cca5785064a4c309bc174f28a839f37b36723cc1a056c0b4a7c301f88d8a0066946ef",
+          "sha256": "44b09f1716f5b97ca84e799318a435501c005e08993a9d74caa01c520c1af225",
+          "sha1": "325e24e383e0fb5fef80a827007aaa53c1a0db0d",
+          "md5": "b679acd4a0d1445728d110f6f5172c00"
+        }
+      ]
+    }
+  ]
+}
