@@ -3,8 +3,6 @@ plugins {
     kotlin("jvm")
     id("maven-publish")
     `kotlin-dsl`
-    id("com.google.devtools.ksp")
-    id("com.squareup.sqldelight")
 }
 
 gradlePlugin {
@@ -24,6 +22,8 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("com.squareup.sqldelight:gradle-plugin:1.5.0")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.5.31-1.0.0")
 }
 
 publishing {

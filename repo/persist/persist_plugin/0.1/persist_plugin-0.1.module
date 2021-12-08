@@ -29,11 +29,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 1467,
-          "sha512": "33fac19939ebdbb5b8de6f5fb168fe378cd9653c7b1bf32898410c93089cca5785064a4c309bc174f28a839f37b36723cc1a056c0b4a7c301f88d8a0066946ef",
-          "sha256": "44b09f1716f5b97ca84e799318a435501c005e08993a9d74caa01c520c1af225",
-          "sha1": "325e24e383e0fb5fef80a827007aaa53c1a0db0d",
-          "md5": "b679acd4a0d1445728d110f6f5172c00"
+          "size": 13640,
+          "sha512": "372c8683f4bb07cdb25fe198049ae4d36c8b3fba3215a8fe238517dc38ae36576e2bbcb14b9d80a3985f9fa95232afa42befad4632ef40ee6b7a85e996d2be78",
+          "sha256": "997795e5beb25c9e3ccd0b7c263a9f4dcdfb9f03ce3ab46be5fc17d82082f093",
+          "sha1": "e50a026e3dc517d4a61f7f73061833dc0e0ec855",
+          "md5": "c47cdeb3bde6a91fe4905a20c7263a3e"
         }
       ]
     },
@@ -53,7 +53,21 @@
           "group": "org.jetbrains.kotlin",
           "module": "kotlin-stdlib",
           "version": {
+            "requires": "1.5.31"
+          }
+        },
+        {
+          "group": "com.squareup.sqldelight",
+          "module": "gradle-plugin",
+          "version": {
             "requires": "1.5.0"
+          }
+        },
+        {
+          "group": "com.google.devtools.ksp",
+          "module": "com.google.devtools.ksp.gradle.plugin",
+          "version": {
+            "requires": "1.5.31-1.0.0"
           }
         }
       ],
@@ -61,11 +75,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 1467,
-          "sha512": "33fac19939ebdbb5b8de6f5fb168fe378cd9653c7b1bf32898410c93089cca5785064a4c309bc174f28a839f37b36723cc1a056c0b4a7c301f88d8a0066946ef",
-          "sha256": "44b09f1716f5b97ca84e799318a435501c005e08993a9d74caa01c520c1af225",
-          "sha1": "325e24e383e0fb5fef80a827007aaa53c1a0db0d",
-          "md5": "b679acd4a0d1445728d110f6f5172c00"
+          "size": 13640,
+          "sha512": "372c8683f4bb07cdb25fe198049ae4d36c8b3fba3215a8fe238517dc38ae36576e2bbcb14b9d80a3985f9fa95232afa42befad4632ef40ee6b7a85e996d2be78",
+          "sha256": "997795e5beb25c9e3ccd0b7c263a9f4dcdfb9f03ce3ab46be5fc17d82082f093",
+          "sha1": "e50a026e3dc517d4a61f7f73061833dc0e0ec855",
+          "md5": "c47cdeb3bde6a91fe4905a20c7263a3e"
         }
       ]
     }

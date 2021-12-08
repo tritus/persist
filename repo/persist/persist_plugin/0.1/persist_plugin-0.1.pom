@@ -13,7 +13,19 @@
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
+      <version>1.5.31</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.sqldelight</groupId>
+      <artifactId>gradle-plugin</artifactId>
       <version>1.5.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.devtools.ksp</groupId>
+      <artifactId>symbol-processing-gradle-plugin</artifactId>
+      <version>1.5.31-1.0.0</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
