@@ -1,37 +1,14 @@
 plugins {
-    id("com.google.devtools.ksp")
     kotlin("jvm")
-    id("com.squareup.sqldelight")
+    id("com.tritus.persist") version("0.1")
 }
 
 version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    google()
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation(project(":processor"))
-    ksp(project(":processor"))
-    implementation("com.squareup.sqldelight:sqlite-driver:1.5.0")
-}
-
-sourceSets {
-    main {
-        java {
-            srcDir("${buildDir.absolutePath}/generated/ksp/main/kotlin")
-        }
-    }
-}
-
-sqldelight {
-    database("PersistDatabase") {
-        packageName = "com.tritus.persist"
-    }
-}
-
-afterEvaluate {
-    tasks.named("generateMainPersistDatabaseInterface").get().dependsOn("kspKotlin")
 }

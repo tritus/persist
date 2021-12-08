@@ -1,5 +1,3 @@
-val kspVersion: String by project
-
 plugins {
     kotlin("jvm")
 }
@@ -14,5 +12,5 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.squareup:kotlinpoet:1.8.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.5.31-1.0.0")
 }
