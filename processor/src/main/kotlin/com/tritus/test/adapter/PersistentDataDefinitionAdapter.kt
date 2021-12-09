@@ -6,6 +6,8 @@ import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
 import com.tritus.test.annotation.PersistentId
 import com.tritus.test.model.PersistentPropertyDefinition
+import com.tritus.test.annotation.persistQualifiedName
+import com.tritus.test.annotation.persistentIdQualifiedName
 import java.io.File
 
 internal object PersistentDataDefinitionAdapter {
@@ -15,7 +17,8 @@ internal object PersistentDataDefinitionAdapter {
         val packageNameString = packageName.asString()
         val idProperty = extractIdProperty()
         val pathInSource = packageNameString.replace(".", "/")
-        val containingClassFile = containingFile!!
+        val containingClassFile = containingFile
+        require(containingClassFile != null) { "Containing file of ${qualifiedName?.asString()} should not be null" }
         val sqlDefinitionFileName = "$dataHolderClassName.sq"
         val sqlDefinitionsPath = containingClassFile.filePath
             .replace(pathInSource, "")
@@ -27,7 +30,7 @@ internal object PersistentDataDefinitionAdapter {
         return PersistentDataDefinition(
             simpleName = simpleNameString,
             dataHolderClassName = dataHolderClassName,
-            databaseQueriesMethodName = "${dataHolderClassName.replace(Regex("^.")) { it.value.toLowerCase() }}Queries",
+            databaseQueriesMethodName = "${dataHolderClassName.replace(Regex("^.")) { it.value.lowercase() }}Queries",
             providerClassName = "${simpleNameString}Provider",
             packageName = packageNameString,
             className = ClassName(packageNameString, simpleNameString),
@@ -43,9 +46,8 @@ internal object PersistentDataDefinitionAdapter {
     private fun KSClassDeclaration.extractIdProperty(): PersistentPropertyDefinition {
         val idProperties = getAllProperties().filter { property ->
             property.annotations.any { annotationSymbol ->
-                val annotation = annotationSymbol.annotationType.resolve().declaration.qualifiedName!!.asString()
-                val persistentIdAnnotation = PersistentId::class.qualifiedName!!
-                annotation == persistentIdAnnotation
+                val annotation = annotationSymbol.annotationType.resolve().declaration.qualifiedName?.asString()
+                annotation == persistentIdQualifiedName
             }
         }
         val idPropertiesCount = idProperties.count()

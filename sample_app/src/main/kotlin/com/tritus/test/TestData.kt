@@ -18,3 +18,11 @@ interface InvalidTestData {
   var name: String?
   val description: String
 }
+
+@Persist
+interface ValidTestData {
+  @PersistentId
+  val id: Long
+  val name: String?
+  val description: String
+}
