@@ -7,6 +7,14 @@ import com.tritus.test.annotation.PersistentId
 interface TestData {
   @PersistentId
   val id: Long
-  val name: String?
+  var name: String?
+  val description: String
+}
+
+@Persist
+interface InvalidTestData {
+  @PersistentId
+  val id: Long
+  var name: String?
   val description: String
 }

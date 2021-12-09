@@ -5,6 +5,11 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.*
 
 internal object PersistDatabaseProviderFactory {
+    const val classSimpleName = "PersistDatabaseProvider"
+    const val databaseName = "PersistDatabase"
+    const val databasePackage = "com.tritus.persist"
+    val databaseClassname = ClassName(databasePackage, databaseName)
+
     fun create(codeGenerator: CodeGenerator) {
         val fileSpec = FileSpec.builder(databasePackage, classSimpleName)
             .addImport("com.squareup.sqldelight.sqlite.driver", "JdbcSqliteDriver")
@@ -48,12 +53,4 @@ internal object PersistDatabaseProviderFactory {
         .returns(databaseClassname)
         .addCode("return cachedDatabase ?: createDatabase()")
         .build()
-
-    const val classSimpleName = "PersistDatabaseProvider"
-
-    const val databaseName = "PersistDatabase"
-
-    const val databasePackage = "com.tritus.persist"
-
-    val databaseClassname = ClassName(databasePackage, databaseName)
 }
