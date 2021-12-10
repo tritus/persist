@@ -1,7 +1,5 @@
 package com.tritus.test
 
-import kotlin.coroutines.CoroutineContext
-
 object ProviderGenerationTest {
     fun testCreationOfData() {
         val name = "Un Beau nom"
