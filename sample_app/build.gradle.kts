@@ -3,8 +3,6 @@ plugins {
     id("com.tritus.persist") version("0.1")
 }
 
-version = "1.0-SNAPSHOT"
-
 repositories {
     mavenCentral()
 }
