@@ -4,6 +4,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.*
 import com.tritus.test.model.PersistentDataDefinition
+import com.tritus.test.model.PersistentPropertyDefinition
 import com.tritus.test.utils.trimLines
 
 internal object DataProviderFactory {
@@ -25,7 +26,6 @@ internal object DataProviderFactory {
         val classBuilder = TypeSpec.Companion.objectBuilder(definition.providerClassName)
         classBuilder.addFunction(createNewFunSpec(definition))
         classBuilder.addFunction(createRetrieveFunSpec(definition))
-        classBuilder.addFunction(createDataholderAdapterFunSpec(definition))
         return classBuilder.build()
     }
 
@@ -48,11 +48,44 @@ internal object DataProviderFactory {
         .addCode(
             """
             val database = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase()
-            return database.${definition.databaseQueriesMethodName}.getRecord(id).executeAsOne().toInterface()
+            return object : ${definition.simpleName} {
+            override val ${definition.idProperty.name} = id
+            ${createInterfaceProperties(definition)}
+            }
             """.trimIndent()
         )
         .returns(definition.className)
         .build()
+
+    private fun createInterfaceProperties(definition: PersistentDataDefinition): String = definition
+        .dataProperties
+        .joinToString("\n") {
+            if (it.isMutable) createMutableInterfaceProperty(it, definition) else createNonMutableInterfaceProperty(it, definition)
+        }
+
+    private fun createNonMutableInterfaceProperty(
+        property: PersistentPropertyDefinition,
+        definition: PersistentDataDefinition
+    ) = """
+        override val ${property.name}: ${property.className}
+        ${createPropertyGetter(property, definition)}
+    """.trimIndent()
+
+    private fun createPropertyGetter(
+        property: PersistentPropertyDefinition,
+        definition: PersistentDataDefinition
+    ): String = """
+        get() = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.getterMethodName}(id).executeAsOne()${if (property.isNullable) ".${property.name}" else ""}
+    """.trimIndent()
+
+    private fun createMutableInterfaceProperty(
+        property: PersistentPropertyDefinition,
+        definition: PersistentDataDefinition
+    ) = """
+        override val ${property.name}: ${property.className}
+        ${createPropertyGetter(property, definition)}
+        set(value) = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.getterMethodName}(id).executeAsOne()
+    """.trimIndent()
 
     private fun createNewFunSpec(definition: PersistentDataDefinition): FunSpec {
         val newBuilder = FunSpec.builder("new")
@@ -67,7 +100,7 @@ internal object DataProviderFactory {
                 database.${definition.databaseQueriesMethodName}.createNew(${definition.dataProperties.joinToString { it.name }})
                 database.${definition.databaseQueriesMethodName}.getLastRecord().executeAsOne()
             }
-            return rawData.toInterface()
+            return retrieve(rawData.id)
             """.trimIndent()
         )
         return newBuilder.build()

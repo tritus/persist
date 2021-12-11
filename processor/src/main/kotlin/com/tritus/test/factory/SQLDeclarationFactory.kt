@@ -1,6 +1,7 @@
 package com.tritus.test.factory
 
 import com.tritus.test.model.PersistentDataDefinition
+import com.tritus.test.model.PersistentPropertyDefinition
 import com.tritus.test.utils.trimLines
 
 internal object SQLDeclarationFactory {
@@ -17,6 +18,10 @@ internal object SQLDeclarationFactory {
         ${createGetLastRecordBlock(definition)}
         
         ${createGetRecordBlock(definition)}
+        
+        ${createGettersBlock(definition)}
+        
+        ${createSettersBlock(definition)}
     """.trimLines()
 
     private fun createGetRecordBlock(definition: PersistentDataDefinition): String = """
@@ -48,5 +53,29 @@ internal object SQLDeclarationFactory {
         createNew:
         INSERT INTO ${definition.dataHolderClassName}(${definition.dataProperties.joinToString { it.name }})
         VALUES (${definition.dataProperties.joinToString { "?" }});
+    """.trimLines()
+
+    private fun createGettersBlock(definition: PersistentDataDefinition): String = definition
+        .dataProperties
+        .joinToString("\n\n") { createGetterBlock(it, definition) }
+
+    private fun createGetterBlock(
+        propertyDefinition: PersistentPropertyDefinition,
+        dataDefinition: PersistentDataDefinition
+    ): String = """
+        ${propertyDefinition.getterMethodName}:
+        SELECT ${propertyDefinition.name} FROM ${dataDefinition.dataHolderClassName} WHERE ${dataDefinition.idProperty.name} = ?;
+    """.trimLines()
+
+    private fun createSettersBlock(definition: PersistentDataDefinition): String = definition
+        .dataProperties
+        .joinToString("\n\n") { createSetterBlock(it, definition) }
+
+    private fun createSetterBlock(
+        propertyDefinition: PersistentPropertyDefinition,
+        dataDefinition: PersistentDataDefinition
+    ): String = """
+        ${propertyDefinition.setterMethodName}:
+        UPDATE ${dataDefinition.dataHolderClassName} SET ${propertyDefinition.name} = ? WHERE ${dataDefinition.idProperty.name} = ?;
     """.trimLines()
 }

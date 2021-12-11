@@ -17,10 +17,15 @@ internal object PersistentPropertyDefinitionAdapter {
             else -> throw IllegalArgumentException("Cannot store $parameterTypeName")
         }
         val sqlNullabilitySuffix = if (parameterType.nullability == Nullability.NOT_NULL) " NOT NULL" else ""
+        val capitalizedName = name.replaceFirstChar { it.titlecase() }
         return PersistentPropertyDefinition(
             name = name,
             className = ClassName(parameterTypeDeclaration.packageName.asString(), parameterTypeName),
-            sqlTypeName = "$sqlRawTypeName$sqlNullabilitySuffix"
+            sqlTypeName = "$sqlRawTypeName$sqlNullabilitySuffix",
+            getterMethodName = "get$capitalizedName",
+            setterMethodName = "set$capitalizedName",
+            isMutable = isMutable,
+            isNullable = parameterType.nullability == Nullability.NULLABLE
         )
     }
 }
