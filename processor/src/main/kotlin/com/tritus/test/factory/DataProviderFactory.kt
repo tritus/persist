@@ -67,7 +67,7 @@ internal object DataProviderFactory {
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition
     ) = """
-        override val ${property.name}: ${property.className}
+        override val ${property.name}: ${property.typeName}
         ${createPropertyGetter(property, definition)}
     """.trimIndent()
 
@@ -75,22 +75,22 @@ internal object DataProviderFactory {
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition
     ): String = """
-        get() = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.getterMethodName}(id).executeAsOne()${if (property.isNullable) ".${property.name}" else ""}
+        get() = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.getterMethodName}(id).executeAsOne()${if (property.typeName.isNullable) ".${property.name}" else ""}
     """.trimIndent()
 
     private fun createMutableInterfaceProperty(
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition
     ) = """
-        override val ${property.name}: ${property.className}
+        override var ${property.name}: ${property.typeName}
         ${createPropertyGetter(property, definition)}
-        set(value) = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.getterMethodName}(id).executeAsOne()
+        set(value) = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase().${definition.databaseQueriesMethodName}.${property.setterMethodName}(value, id)
     """.trimIndent()
 
     private fun createNewFunSpec(definition: PersistentDataDefinition): FunSpec {
         val newBuilder = FunSpec.builder("new")
         definition.dataProperties.forEach { property ->
-            newBuilder.addParameter(property.name, property.className)
+            newBuilder.addParameter(property.name, property.typeName)
         }
         newBuilder.returns(definition.className)
         newBuilder.addCode(

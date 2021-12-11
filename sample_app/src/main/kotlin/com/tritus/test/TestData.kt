@@ -8,5 +8,5 @@ interface TestData {
   @PersistentId
   val id: Long
   val name: String?
-  val description: String
+  var description: String
 }

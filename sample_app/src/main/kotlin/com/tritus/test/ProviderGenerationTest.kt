@@ -18,4 +18,15 @@ object ProviderGenerationTest {
         require(testData.name == testDataGotFromElsewhere.name)
         require(testData.description == testDataGotFromElsewhere.description)
     }
+
+    fun testMutabilityOfData() {
+        val name = "Un Beau nom"
+        val description = "et une description"
+        val testData: TestData = TestDataProvider.new(name, description)
+        require(testData.name == name)
+        require(testData.description == description)
+        val newDescription = "une nouvelle description"
+        testData.description = newDescription
+        require(testData.description == newDescription)
+    }
 }
