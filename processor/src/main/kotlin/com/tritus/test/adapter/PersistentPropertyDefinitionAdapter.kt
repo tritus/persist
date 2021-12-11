@@ -3,7 +3,6 @@ package com.tritus.test.adapter
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.TypeName
 import com.tritus.test.model.PersistentPropertyDefinition
 
 internal object PersistentPropertyDefinitionAdapter {
@@ -17,9 +16,19 @@ internal object PersistentPropertyDefinitionAdapter {
             parameterTypeName
         ).copy(nullable = parameterType.nullability == Nullability.NULLABLE)
         val sqlRawTypeName = when (parameterTypeName) {
-            "String" -> "TEXT"
             "Long" -> "INTEGER"
-            else -> throw IllegalArgumentException("Cannot store $parameterTypeName")
+            "Double" -> "REAL"
+            "String" -> "TEXT"
+            "ByteArray" -> "BLOB"
+            "Int" -> "INTEGER AS Int"
+            "Short" -> "INTEGER AS Short"
+            "Float" -> "REAL AS Float"
+            "Boolean" -> "INTEGER AS Boolean"
+            else -> throw IllegalArgumentException("""
+                Unsupported type $parameterTypeName.
+                All supported types are : Long, Double, String, ByteArray, Int, Short, Float, Boolean.
+                References to other @Persist annotated types are not yet supported.
+            """.trimIndent())
         }
         val sqlNullabilitySuffix = if (!typeName.isNullable) " NOT NULL" else ""
         val capitalizedName = name.replaceFirstChar { it.titlecase() }

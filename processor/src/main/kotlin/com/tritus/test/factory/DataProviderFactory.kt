@@ -47,7 +47,6 @@ internal object DataProviderFactory {
         .addParameter("id", Long::class)
         .addCode(
             """
-            val database = ${PersistDatabaseProviderFactory.classSimpleName}.getDatabase()
             return object : ${definition.simpleName} {
             override val ${definition.idProperty.name} = id
             ${createInterfaceProperties(definition)}
