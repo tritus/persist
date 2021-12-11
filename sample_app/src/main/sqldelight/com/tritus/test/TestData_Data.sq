@@ -22,3 +22,23 @@ SELECT * FROM TestData_Data ORDER BY id DESC LIMIT 1;
 getRecord:
 SELECT * FROM TestData_Data WHERE id = ?;
 
+
+
+getName:
+SELECT name FROM TestData_Data WHERE id = ?;
+
+
+
+getDescription:
+SELECT description FROM TestData_Data WHERE id = ?;
+
+
+
+setName:
+UPDATE TestData_Data SET name = ? WHERE id = ?;
+
+
+
+setDescription:
+UPDATE TestData_Data SET description = ? WHERE id = ?;
+
