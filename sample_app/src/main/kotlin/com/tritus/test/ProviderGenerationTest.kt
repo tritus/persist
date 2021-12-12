@@ -1,5 +1,9 @@
 package com.tritus.test
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+
 object ProviderGenerationTest {
     fun testCreationOfData() {
         val name = "Un Beau nom"
@@ -57,5 +61,49 @@ object ProviderGenerationTest {
         require(testData.someShort == someShort)
         require(testData.someFloat == someFloat)
         require(testData.someBoolean == someBoolean)
+    }
+
+    fun testObservabilityOfData() {
+        val name = "Un Beau nom"
+        val description = "et une description"
+        val testData = TestDataProvider.new(name, description)
+        var currentDescription = ""
+        val observingJob = testData.asFlow()
+            .onEach { currentDescription = it.description }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        runBlocking {
+            try {
+                delay(50)
+                require(currentDescription == description)
+                val newDescription = "une autre description"
+                testData.description = newDescription
+                delay(50)
+                require(currentDescription == newDescription)
+            } finally {
+                observingJob.cancel()
+            }
+        }
+    }
+
+    fun testObservabilityOfProperties() {
+        val name = "Un Beau nom"
+        val description = "et une description"
+        val testData = TestDataProvider.new(name, description)
+        var currentDescription = ""
+        val observingJob = testData.descriptionAsFlow()
+            .onEach { currentDescription = it }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        runBlocking {
+            try {
+                delay(50)
+                require(currentDescription == description)
+                val newDescription = "une autre description"
+                testData.description = newDescription
+                delay(50)
+                require(currentDescription == newDescription)
+            } finally {
+                observingJob.cancel()
+            }
+        }
     }
 }
