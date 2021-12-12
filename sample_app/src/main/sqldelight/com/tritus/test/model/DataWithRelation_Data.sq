@@ -1,0 +1,33 @@
+
+
+CREATE TABLE DataWithRelation_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+testData INTEGER NOT NULL
+);
+
+
+
+createNew:
+INSERT INTO DataWithRelation_Data(testData)
+VALUES (?);
+
+
+
+getLastRecord:
+SELECT * FROM DataWithRelation_Data ORDER BY id DESC LIMIT 1;
+
+
+
+getRecord:
+SELECT * FROM DataWithRelation_Data WHERE id = ?;
+
+
+
+getTestData:
+SELECT testData FROM DataWithRelation_Data WHERE id = ?;
+
+
+
+setTestData:
+UPDATE DataWithRelation_Data SET testData = ? WHERE id = ?;
+

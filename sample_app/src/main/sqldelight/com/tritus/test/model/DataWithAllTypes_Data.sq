@@ -1,0 +1,110 @@
+
+
+CREATE TABLE DataWithAllTypes_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+someLong INTEGER NOT NULL,
+someDouble REAL NOT NULL,
+someString TEXT NOT NULL,
+someByteArray BLOB NOT NULL,
+someInt INTEGER AS Int NOT NULL,
+someShort INTEGER AS Short NOT NULL,
+someFloat REAL AS Float NOT NULL,
+someBoolean INTEGER AS Boolean NOT NULL
+);
+
+
+
+createNew:
+INSERT INTO DataWithAllTypes_Data(someLong, someDouble, someString, someByteArray, someInt, someShort, someFloat, someBoolean)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+
+
+getLastRecord:
+SELECT * FROM DataWithAllTypes_Data ORDER BY id DESC LIMIT 1;
+
+
+
+getRecord:
+SELECT * FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeLong:
+SELECT someLong FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeDouble:
+SELECT someDouble FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeString:
+SELECT someString FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeByteArray:
+SELECT someByteArray FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeInt:
+SELECT someInt FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeShort:
+SELECT someShort FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeFloat:
+SELECT someFloat FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+getSomeBoolean:
+SELECT someBoolean FROM DataWithAllTypes_Data WHERE id = ?;
+
+
+
+setSomeLong:
+UPDATE DataWithAllTypes_Data SET someLong = ? WHERE id = ?;
+
+
+
+setSomeDouble:
+UPDATE DataWithAllTypes_Data SET someDouble = ? WHERE id = ?;
+
+
+
+setSomeString:
+UPDATE DataWithAllTypes_Data SET someString = ? WHERE id = ?;
+
+
+
+setSomeByteArray:
+UPDATE DataWithAllTypes_Data SET someByteArray = ? WHERE id = ?;
+
+
+
+setSomeInt:
+UPDATE DataWithAllTypes_Data SET someInt = ? WHERE id = ?;
+
+
+
+setSomeShort:
+UPDATE DataWithAllTypes_Data SET someShort = ? WHERE id = ?;
+
+
+
+setSomeFloat:
+UPDATE DataWithAllTypes_Data SET someFloat = ? WHERE id = ?;
+
+
+
+setSomeBoolean:
+UPDATE DataWithAllTypes_Data SET someBoolean = ? WHERE id = ?;
+
