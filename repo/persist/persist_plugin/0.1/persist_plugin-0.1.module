@@ -29,11 +29,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 13642,
-          "sha512": "3cca81491aea71981ad1a0c1027cd6cbc748f2510f31a2f2e8dfe5d8b70dbb24b4c8c74400c39ae1dc96392d3b22cbec3d8c83ce133c3419bc3c4b9295ad1eaa",
-          "sha256": "5016c7a37c5512ce37742a24e0586a6f2b4d7276a87c1dd723d53c255130a702",
-          "sha1": "5c1008313c7c6be773de205f9efa445d3ac805c6",
-          "md5": "29f847584e629003366c6bdad4952013"
+          "size": 13673,
+          "sha512": "0b4ad9075488170a5b03e4dd9150f3c3cd713827a3853fa224db823eba07a8bd4eb065449b037bce02b55b55e806d504b5d0569677a821d443336a06f5180293",
+          "sha256": "f7c46a7be9978dc0f9f8f4411ffc6b32efcd62f39c83d132f70894b84979bd75",
+          "sha1": "6fd06b3e5137eb3a85c6a2437d20bcac83a055b9",
+          "md5": "a8f5f7c69ae82ef16783fbed45bb52c3"
         }
       ]
     },
@@ -75,11 +75,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 13642,
-          "sha512": "3cca81491aea71981ad1a0c1027cd6cbc748f2510f31a2f2e8dfe5d8b70dbb24b4c8c74400c39ae1dc96392d3b22cbec3d8c83ce133c3419bc3c4b9295ad1eaa",
-          "sha256": "5016c7a37c5512ce37742a24e0586a6f2b4d7276a87c1dd723d53c255130a702",
-          "sha1": "5c1008313c7c6be773de205f9efa445d3ac805c6",
-          "md5": "29f847584e629003366c6bdad4952013"
+          "size": 13673,
+          "sha512": "0b4ad9075488170a5b03e4dd9150f3c3cd713827a3853fa224db823eba07a8bd4eb065449b037bce02b55b55e806d504b5d0569677a821d443336a06f5180293",
+          "sha256": "f7c46a7be9978dc0f9f8f4411ffc6b32efcd62f39c83d132f70894b84979bd75",
+          "sha1": "6fd06b3e5137eb3a85c6a2437d20bcac83a055b9",
+          "md5": "a8f5f7c69ae82ef16783fbed45bb52c3"
         }
       ]
     }

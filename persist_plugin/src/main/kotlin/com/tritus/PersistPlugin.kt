@@ -15,6 +15,7 @@ class PersistPlugin: Plugin<Project> {
                 "implementation"(project(":processor"))
                 "ksp"(project(":processor"))
                 "implementation"("com.squareup.sqldelight:sqlite-driver:1.5.0")
+                "implementation"("com.squareup.sqldelight:coroutines-extensions:1.5.3")
             }
             configure<SourceSetContainer> {
                 named("main") {
