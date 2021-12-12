@@ -29,20 +29,6 @@ internal object DataProviderFactory {
         return classBuilder.build()
     }
 
-    private fun createDataholderAdapterFunSpec(definition: PersistentDataDefinition) = FunSpec
-        .builder("toInterface")
-        .addModifiers(KModifier.PRIVATE)
-        .receiver(ClassName(definition.packageName, definition.dataHolderClassName))
-        .returns(definition.className)
-        .addCode(
-            """
-            return object : ${definition.simpleName} {
-            ${definition.allProperties.joinToString("\n") { "override val ${it.name} = this@toInterface.${it.name}" }}
-            }
-            """.trimLines()
-        )
-        .build()
-
     private fun createRetrieveFunSpec(definition: PersistentDataDefinition) = FunSpec.builder("retrieve")
         .addParameter("id", Long::class)
         .addCode(

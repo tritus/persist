@@ -9,6 +9,7 @@ internal data class PersistentDataDefinition(
     val dataHolderClassName: String,
     val databaseQueriesMethodName: String,
     val providerClassName: String,
+    val extensionsFileName: String,
     val packageName: String,
     val className: ClassName,
     val containingFile: KSFile,
