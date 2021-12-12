@@ -4,15 +4,13 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.tritus.test.adapter.PersistentDataDefinitionAdapter.toPersistentDataDefinition
-import com.tritus.test.annotation.Persist
-import com.tritus.test.factory.PersistDatabaseProviderFactory
 import com.tritus.test.annotation.persistQualifiedName
 
 internal class PersistProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val persistAnnotatedSymbols = extractPersistAnnotatedSymbols(resolver)
         return persistAnnotatedSymbols.foldIndexed(emptyList()) { index, acc, declaration ->
-            val definition = declaration.toPersistentDataDefinition()
+            val definition = declaration.toPersistentDataDefinition(persistAnnotatedSymbols)
             if (index == 0) declaration.accept(DatabaseCreationVisitor(environment.codeGenerator), definition)
             declaration.accept(PersistentDataVisitor(environment.codeGenerator), definition)
             acc

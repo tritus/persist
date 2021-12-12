@@ -1,5 +1,7 @@
 package com.tritus.test
 
+import com.tritus.test.model.DataWithRelation
+import com.tritus.test.model.TestData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -105,5 +107,13 @@ object ProviderGenerationTest {
                 observingJob.cancel()
             }
         }
+    }
+
+    fun testRelationBetweenPersistedData() {
+        val name = "Un Beau nom"
+        val description = "et une description"
+        val testData = TestDataProvider.new(name, description)
+        val dataWithRelation: DataWithRelation = DataWithRelationProvider.new(testData)
+        require(dataWithRelation.testData.name == name)
     }
 }
