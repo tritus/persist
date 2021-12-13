@@ -9,12 +9,12 @@ import com.tritus.test.annotation.persistQualifiedName
 internal class PersistProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val persistAnnotatedSymbols = extractPersistAnnotatedSymbols(resolver)
-        return persistAnnotatedSymbols.foldIndexed(emptyList()) { index, acc, declaration ->
-            val definition = declaration.toPersistentDataDefinition(persistAnnotatedSymbols)
+        val definitions = persistAnnotatedSymbols.map { it.toPersistentDataDefinition(persistAnnotatedSymbols) }
+        persistAnnotatedSymbols.zip(definitions).forEachIndexed { index, (declaration, definition) ->
             if (index == 0) declaration.accept(DatabaseCreationVisitor(environment.codeGenerator), definition)
-            declaration.accept(PersistentDataVisitor(environment.codeGenerator), definition)
-            acc
+            declaration.accept(PersistentDataVisitor(environment.codeGenerator), DataVisitorParam(definition, definitions))
         }
+        return emptyList()
     }
 
     private fun extractPersistAnnotatedSymbols(resolver: Resolver): Sequence<KSClassDeclaration> = resolver

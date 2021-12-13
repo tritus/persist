@@ -17,25 +17,7 @@ internal object PersistentPropertyDefinitionAdapter {
             parameterTypeName
         ).copy(nullable = parameterType.nullability == Nullability.NULLABLE)
         val isARelationShip = parameterTypeName in persistAnnotatedSymbols.map { it.simpleName.asString() }
-        val sqlRawTypeName = if (isARelationShip) {
-            "INTEGER"
-        } else {
-            when (parameterTypeName) {
-                "Long" -> "INTEGER"
-                "Double" -> "REAL"
-                "String" -> "TEXT"
-                "ByteArray" -> "BLOB"
-                "Int" -> "INTEGER AS Int"
-                "Short" -> "INTEGER AS Short"
-                "Float" -> "REAL AS Float"
-                "Boolean" -> "INTEGER AS Boolean"
-                else -> throw IllegalArgumentException("""
-                    Unsupported type $parameterTypeName in ${parent?.location}
-                    All supported types are : Long, Double, String, ByteArray, Int, Short, Float, Boolean
-                    and types annotated with @Persist.
-                """.trimIndent())
-            }
-        }
+        val sqlRawTypeName = extractSqlTypeName(parameterTypeName, isARelationShip)
         val sqlNullabilitySuffix = if (!typeName.isNullable) " NOT NULL" else ""
         val capitalizedName = name.replaceFirstChar { it.titlecase() }
         return PersistentPropertyDefinition(
@@ -47,5 +29,30 @@ internal object PersistentPropertyDefinitionAdapter {
             isMutable = isMutable,
             isARelationShip = isARelationShip
         )
+    }
+
+    private fun KSPropertyDeclaration.extractSqlTypeName(
+        parameterTypeName: String,
+        isARelationShip: Boolean
+    ) = when (parameterTypeName) {
+        "Long" -> "INTEGER"
+        "Double" -> "REAL"
+        "String" -> "TEXT"
+        "ByteArray" -> "BLOB"
+        "Int" -> "INTEGER AS Int"
+        "Short" -> "INTEGER AS Short"
+        "Float" -> "REAL AS Float"
+        "Boolean" -> "INTEGER AS Boolean"
+        else -> if (isARelationShip) {
+            "INTEGER"
+        } else {
+            throw IllegalArgumentException(
+                """
+                    Unsupported type $parameterTypeName in ${parent?.location}
+                    All supported types are : Long, Double, String, ByteArray, Int, Short, Float, Boolean
+                    and types annotated with @Persist.
+                """.trimIndent()
+            )
+        }
     }
 }
