@@ -4,18 +4,16 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
-import com.tritus.test.annotation.PersistentId
 import com.tritus.test.model.PersistentPropertyDefinition
-import com.tritus.test.annotation.persistQualifiedName
 import com.tritus.test.annotation.persistentIdQualifiedName
 import java.io.File
 
 internal object PersistentDataDefinitionAdapter {
-    fun KSClassDeclaration.toPersistentDataDefinition(): PersistentDataDefinition {
+    fun KSClassDeclaration.toPersistentDataDefinition(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentDataDefinition {
         val simpleNameString = simpleName.asString()
         val dataHolderClassName = "${simpleNameString}_Data"
         val packageNameString = packageName.asString()
-        val idProperty = extractIdProperty()
+        val idProperty = extractIdProperty(persistAnnotatedSymbols)
         val pathInSource = packageNameString.replace(".", "/")
         val containingClassFile = containingFile
         require(containingClassFile != null) { "Containing file of ${qualifiedName?.asString()} should not be null" }
@@ -26,12 +24,13 @@ internal object PersistentDataDefinitionAdapter {
             .dropLast(3)
             .plus("sqldelight")
             .joinToString("/")
-        val allProperties = getAllProperties().map { it.toPersistentPropertyDefinition() }.toList()
+        val allProperties = getAllProperties()
+            .map { it.toPersistentPropertyDefinition(persistAnnotatedSymbols) }
+            .toList()
         return PersistentDataDefinition(
             simpleName = simpleNameString,
             dataHolderClassName = dataHolderClassName,
             databaseQueriesMethodName = "${dataHolderClassName.replace(Regex("^.")) { it.value.lowercase() }}Queries",
-            providerClassName = "${simpleNameString}Provider",
             extensionsFileName = "${simpleNameString}Extensions",
             packageName = packageNameString,
             className = ClassName(packageNameString, simpleNameString),
@@ -44,7 +43,7 @@ internal object PersistentDataDefinitionAdapter {
         )
     }
 
-    private fun KSClassDeclaration.extractIdProperty(): PersistentPropertyDefinition {
+    private fun KSClassDeclaration.extractIdProperty(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentPropertyDefinition {
         val idProperties = getAllProperties().filter { property ->
             property.annotations.any { annotationSymbol ->
                 val annotation = annotationSymbol.annotationType.resolve().declaration.qualifiedName?.asString()
@@ -74,6 +73,6 @@ internal object PersistentDataDefinitionAdapter {
                 The property annotated with @PersistentId should not be mutable.
             """.trimIndent()
         }
-        return idProperty.toPersistentPropertyDefinition()
+        return idProperty.toPersistentPropertyDefinition(persistAnnotatedSymbols)
     }
 }

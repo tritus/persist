@@ -2,6 +2,7 @@ package com.tritus.test.factory
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.squareup.kotlinpoet.*
 
 internal object PersistDatabaseProviderFactory {
@@ -10,12 +11,12 @@ internal object PersistDatabaseProviderFactory {
     const val databasePackage = "com.tritus.persist"
     val databaseClassname = ClassName(databasePackage, databaseName)
 
-    fun create(codeGenerator: CodeGenerator) {
+    fun create(environment: SymbolProcessorEnvironment) {
         val fileSpec = FileSpec.builder(databasePackage, classSimpleName)
             .addImport("com.squareup.sqldelight.sqlite.driver", "JdbcSqliteDriver")
             .addType(createProviderClass())
             .build()
-        codeGenerator.createNewFile(
+        environment.codeGenerator.createNewFile(
             Dependencies(true),
             databasePackage,
             classSimpleName

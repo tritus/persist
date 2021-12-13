@@ -1,0 +1,44 @@
+
+
+CREATE TABLE VariableTestData_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+name TEXT,
+description TEXT NOT NULL
+);
+
+
+
+createNew:
+INSERT INTO VariableTestData_Data(name, description)
+VALUES (?, ?);
+
+
+
+getLastRecord:
+SELECT * FROM VariableTestData_Data ORDER BY id DESC LIMIT 1;
+
+
+
+getRecord:
+SELECT * FROM VariableTestData_Data WHERE id = ?;
+
+
+
+getName:
+SELECT name FROM VariableTestData_Data WHERE id = ?;
+
+
+
+getDescription:
+SELECT description FROM VariableTestData_Data WHERE id = ?;
+
+
+
+setName:
+UPDATE VariableTestData_Data SET name = ? WHERE id = ?;
+
+
+
+setDescription:
+UPDATE VariableTestData_Data SET description = ? WHERE id = ?;
+

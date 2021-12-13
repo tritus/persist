@@ -1,12 +1,11 @@
-package com.tritus.test
+package com.tritus.test.model
 
 import com.tritus.test.annotation.Persist
 import com.tritus.test.annotation.PersistentId
 
 @Persist
-interface TestData {
+interface DataWithChangingRelation {
   @PersistentId
   val id: Long
-  val name: String?
-  var description: String
+  var testData: TestData
 }
