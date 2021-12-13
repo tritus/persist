@@ -9,5 +9,5 @@ internal data class PersistentPropertyDefinition(
     val getterMethodName: String,
     val setterMethodName: String,
     val isMutable: Boolean,
-    val isARelationShip: Boolean
+    val isARelationship: Boolean
 )

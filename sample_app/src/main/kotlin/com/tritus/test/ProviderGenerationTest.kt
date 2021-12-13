@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 object ProviderGenerationTest {
+
+    const val OBSERVATION_DELAY = 100L
+
     fun testCreationOfData() {
         val name = "Un Beau nom"
         val description = "et une description"
@@ -74,11 +77,11 @@ object ProviderGenerationTest {
             .launchIn(CoroutineScope(Dispatchers.IO))
         runBlocking {
             try {
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentDescription == description)
                 val newDescription = "une autre description"
                 testData.description = newDescription
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentDescription == newDescription)
             } finally {
                 observingJob.cancel()
@@ -96,11 +99,11 @@ object ProviderGenerationTest {
             .launchIn(CoroutineScope(Dispatchers.IO))
         runBlocking {
             try {
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentDescription == description)
                 val newDescription = "une autre description"
                 testData.description = newDescription
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentDescription == newDescription)
             } finally {
                 observingJob.cancel()
@@ -125,14 +128,40 @@ object ProviderGenerationTest {
             .launchIn(CoroutineScope(Dispatchers.IO))
         runBlocking {
             try {
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentRelation?.id == testData.id)
                 val newTestData = TestData("new name", "une autre description")
                 dataWithRelation.testData = newTestData
-                delay(50)
+                delay(OBSERVATION_DELAY)
                 require(currentRelation?.id == newTestData.id)
             } finally {
                 observingJob.cancel()
+            }
+        }
+    }
+
+    fun testObservabilityRedundancy() {
+        val testData = VariableTestData("Un Beau nom", "et une description")
+        var nameEmissionsCount = 0
+        var descriptionEmissionsCount = 0
+        val nameObservingJob = testData.nameAsFlow()
+            .onEach { nameEmissionsCount++ }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        val descriptionObservingJob = testData.descriptionAsFlow()
+            .onEach { descriptionEmissionsCount++ }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        runBlocking {
+            try {
+                delay(OBSERVATION_DELAY)
+                require(nameEmissionsCount == 1)
+                require(descriptionEmissionsCount == 1)
+                testData.description = "une autre description"
+                delay(OBSERVATION_DELAY)
+                require(nameEmissionsCount == 1)
+                require(descriptionEmissionsCount == 2)
+            } finally {
+                nameObservingJob.cancel()
+                descriptionObservingJob.cancel()
             }
         }
     }

@@ -11,8 +11,8 @@ internal class PersistProcessor(private val environment: SymbolProcessorEnvironm
         val persistAnnotatedSymbols = extractPersistAnnotatedSymbols(resolver)
         val definitions = persistAnnotatedSymbols.map { it.toPersistentDataDefinition(persistAnnotatedSymbols) }
         persistAnnotatedSymbols.zip(definitions).forEachIndexed { index, (declaration, definition) ->
-            if (index == 0) declaration.accept(DatabaseCreationVisitor(environment.codeGenerator), definition)
-            declaration.accept(PersistentDataVisitor(environment.codeGenerator), DataVisitorParam(definition, definitions))
+            if (index == 0) declaration.accept(DatabaseCreationVisitor(environment), definition)
+            declaration.accept(PersistentDataVisitor(environment), DataVisitorParam(definition, definitions))
         }
         return emptyList()
     }

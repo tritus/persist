@@ -27,7 +27,7 @@ internal object PersistentPropertyDefinitionAdapter {
             getterMethodName = "get$capitalizedName",
             setterMethodName = "set$capitalizedName",
             isMutable = isMutable,
-            isARelationShip = isARelationShip
+            isARelationship = isARelationShip
         )
     }
 
