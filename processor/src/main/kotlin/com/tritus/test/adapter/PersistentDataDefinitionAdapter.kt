@@ -4,8 +4,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
-import com.tritus.test.model.PersistentPropertyDefinition
+import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPrimitivePropertyDefinition
 import com.tritus.test.annotation.persistentIdQualifiedName
+import com.tritus.test.model.PrimitivePropertyDefinition
 import java.io.File
 
 internal object PersistentDataDefinitionAdapter {
@@ -24,26 +25,45 @@ internal object PersistentDataDefinitionAdapter {
             .dropLast(3)
             .plus("sqldelight")
             .joinToString("/")
-        val allProperties = getAllProperties()
-            .map { it.toPersistentPropertyDefinition(persistAnnotatedSymbols) }
+        val dataProperties = getAllProperties()
+            .filter { it.simpleName.asString() != idProperty.name }
+            .map { it.toPersistentPropertyDefinition(this, persistAnnotatedSymbols) }
             .toList()
         return PersistentDataDefinition(
             simpleName = simpleNameString,
-            dataHolderClassName = dataHolderClassName,
+            dataholderClassName = dataHolderClassName,
             databaseQueriesMethodName = "${dataHolderClassName.replace(Regex("^.")) { it.value.lowercase() }}Queries",
             extensionsFileName = "${simpleNameString}Extensions",
             packageName = packageNameString,
             className = ClassName(packageNameString, simpleNameString),
             containingFile = containingClassFile,
             idProperty = idProperty,
-            allProperties = allProperties,
-            dataProperties = allProperties - idProperty,
-            sqlDefinitionsFolder = File(sqlDefinitionsPath),
-            sqlDefinitionFile = File("$sqlDefinitionsPath/$pathInSource/$sqlDefinitionFileName")
+            dataProperties = dataProperties,
+            sqlDelightFolder = File(sqlDefinitionsPath),
+            sqlDefinitionFile = File(sqlDefinitionsFolderPath(), sqlDefinitionFileName)
         )
     }
 
-    private fun KSClassDeclaration.extractIdProperty(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentPropertyDefinition {
+    fun KSClassDeclaration.sqlDefinitionsFolderPath(): File {
+        return File(sqldelightFolder(), pathInSource())
+    }
+
+    private fun KSClassDeclaration.sqldelightFolder(): File {
+        val containingClassFile = containingFile
+        require(containingClassFile != null) { "Containing file of ${qualifiedName?.asString()} should not be null" }
+        return File(
+            containingClassFile.filePath
+            .replace(pathInSource(), "")
+            .split("/")
+            .dropLast(3)
+            .plus("sqldelight")
+            .joinToString("/")
+        )
+    }
+
+    private fun KSClassDeclaration.pathInSource(): String = packageName.asString().replace(".", "/")
+
+    private fun KSClassDeclaration.extractIdProperty(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PrimitivePropertyDefinition {
         val idProperties = getAllProperties().filter { property ->
             property.annotations.any { annotationSymbol ->
                 val annotation = annotationSymbol.annotationType.resolve().declaration.qualifiedName?.asString()
@@ -73,6 +93,12 @@ internal object PersistentDataDefinitionAdapter {
                 The property annotated with @PersistentId should not be mutable.
             """.trimIndent()
         }
-        return idProperty.toPersistentPropertyDefinition(persistAnnotatedSymbols)
+        require(idProperty.type.resolve().declaration.qualifiedName?.asString() == Long::class.qualifiedName) {
+            """
+                Property ${idProperty.simpleName.asString()} declared in ${qualifiedName?.asString()}.
+                The property annotated with @PersistentId must be of type Long.
+            """.trimIndent()
+        }
+        return idProperty.toPrimitivePropertyDefinition(persistAnnotatedSymbols)
     }
 }

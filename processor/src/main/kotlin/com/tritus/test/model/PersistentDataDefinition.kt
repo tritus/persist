@@ -6,15 +6,14 @@ import java.io.File
 
 internal data class PersistentDataDefinition(
     val simpleName: String,
-    val dataHolderClassName: String,
+    val dataholderClassName: String,
     val databaseQueriesMethodName: String,
     val extensionsFileName: String,
     val packageName: String,
     val className: ClassName,
     val containingFile: KSFile,
-    val idProperty: PersistentPropertyDefinition,
-    val allProperties: List<PersistentPropertyDefinition>,
+    val idProperty: PrimitivePropertyDefinition,
     val dataProperties: List<PersistentPropertyDefinition>,
-    val sqlDefinitionsFolder: File,
+    val sqlDelightFolder: File,
     val sqlDefinitionFile: File
 )

@@ -8,7 +8,7 @@ import com.tritus.test.model.PersistentDataDefinition
 
 internal class DatabaseCreationVisitor(private val environment: SymbolProcessorEnvironment): KSEmptyVisitor<PersistentDataDefinition, Unit>() {
     override fun defaultHandler(node: KSNode, data: PersistentDataDefinition) {
-        data.sqlDefinitionsFolder.deleteRecursively()
+        data.sqlDelightFolder.deleteRecursively()
         PersistDatabaseProviderFactory.create(environment)
     }
 }

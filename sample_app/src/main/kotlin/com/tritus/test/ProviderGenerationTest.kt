@@ -165,4 +165,93 @@ object ProviderGenerationTest {
             }
         }
     }
+
+    fun testDataWithListOfPrimitives() {
+        val name = "Un Beau nom"
+        val descriptions = listOf("et une description", "et une autre")
+        val testData = TestDataWithPrimitiveStaticList(name, descriptions)
+        require(testData.descriptions == descriptions)
+    }
+
+    fun testDataWithListOfReferences() {
+        val name = "Un Beau nom"
+        val descriptions = listOf(
+            TestData("one name", "one desc"),
+            TestData("two name", "two desc")
+        )
+        val testData = TestDataWithRefStaticList(name, descriptions)
+        require(testData.descriptions.map { it.id } == descriptions.map { it.id })
+    }
+
+    fun testObservabilityOfListOfReferences() {
+        val name = "Un Beau nom"
+        val descriptions = listOf(
+            TestData("one name", "one desc"),
+            TestData("two name", "two desc")
+        )
+        val otherDescriptions = listOf(
+            TestData("three name", "three desc"),
+            TestData("four name", "four desc")
+        )
+        val testData = TestDataWithRefList(name, descriptions)
+
+        var currentObservationFromProperty = emptyList<TestData>()
+        var currentObservationFromObject = emptyList<TestData>()
+        val propertyObservingJob = testData.descriptionsAsFlow()
+            .onEach { currentObservationFromProperty = it }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        val objectObservingJob = testData.asFlow()
+            .onEach { currentObservationFromObject = it.descriptions }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        runBlocking {
+            try {
+                delay(OBSERVATION_DELAY)
+                require(currentObservationFromProperty.map { it.id } == descriptions.map { it.id })
+                require(currentObservationFromObject.map { it.id } == descriptions.map { it.id })
+                testData.descriptions = otherDescriptions
+                delay(OBSERVATION_DELAY)
+                require(currentObservationFromProperty.map { it.id } == otherDescriptions.map { it.id })
+                require(currentObservationFromObject.map { it.id } == otherDescriptions.map { it.id })
+            } finally {
+                propertyObservingJob.cancel()
+                objectObservingJob.cancel()
+            }
+        }
+    }
+
+    fun testObservabilityOfListOfPrimitives() {
+        val name = "Un Beau nom"
+        val descriptions = listOf(
+            "one desc",
+            "two desc"
+        )
+        val otherDescriptions = listOf(
+            "three desc",
+            "four desc"
+        )
+        val testData = TestDataWithPrimitiveList(name, descriptions)
+
+        var currentObservationFromProperty = emptyList<String>()
+        var currentObservationFromObject = emptyList<String>()
+        val propertyObservingJob = testData.descriptionsAsFlow()
+            .onEach { currentObservationFromProperty = it }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        val objectObservingJob = testData.asFlow()
+            .onEach { currentObservationFromObject = it.descriptions }
+            .launchIn(CoroutineScope(Dispatchers.IO))
+        runBlocking {
+            try {
+                delay(OBSERVATION_DELAY)
+                require(currentObservationFromProperty == descriptions)
+                require(currentObservationFromObject == descriptions)
+                testData.descriptions = otherDescriptions
+                delay(OBSERVATION_DELAY)
+                require(currentObservationFromProperty == otherDescriptions)
+                require(currentObservationFromObject == otherDescriptions)
+            } finally {
+                propertyObservingJob.cancel()
+                objectObservingJob.cancel()
+            }
+        }
+    }
 }
