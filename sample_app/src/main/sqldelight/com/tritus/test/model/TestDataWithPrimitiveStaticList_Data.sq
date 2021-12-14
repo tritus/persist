@@ -1,0 +1,47 @@
+
+
+CREATE TABLE TestDataWithPrimitiveStaticList_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+name TEXT
+);
+
+
+
+createNew:
+INSERT INTO TestDataWithPrimitiveStaticList_Data(name)
+VALUES (?);
+
+
+
+getLastRecord:
+SELECT * FROM TestDataWithPrimitiveStaticList_Data ORDER BY id DESC LIMIT 1;
+
+
+
+getRecord:
+SELECT * FROM TestDataWithPrimitiveStaticList_Data WHERE id = ?;
+
+
+
+getName:
+SELECT name FROM TestDataWithPrimitiveStaticList_Data WHERE id = ?;
+
+
+
+getDescriptions:
+SELECT value FROM TestDataWithPrimitiveStaticList_descriptions_Data WHERE ref_id = ?;
+
+
+
+setName:
+UPDATE TestDataWithPrimitiveStaticList_Data SET name = ? WHERE id = ?;
+
+
+
+deleteAllDescriptions:
+DELETE FROM TestDataWithPrimitiveStaticList_descriptions_Data WHERE ref_id = ?;
+
+
+setItemDescriptions:
+INSERT INTO TestDataWithPrimitiveStaticList_descriptions_Data(ref_id, value) VALUES (?, ?);
+
