@@ -28,6 +28,7 @@ internal object DataExtensionsFactory {
             .addImport("com.squareup.sqldelight.runtime.coroutines", "asFlow")
             .addImport("kotlinx.coroutines.flow", "map")
             .addImport("kotlinx.coroutines.flow", "distinctUntilChanged")
+            .addImport("kotlinx.coroutines.flow", "combine")
             .build()
         environment.codeGenerator.createNewFile(
             Dependencies(true, definition.containingFile),
@@ -146,6 +147,14 @@ internal object DataExtensionsFactory {
                     .${definition.databaseQueriesMethodName}
                     .getRecord(${definition.idProperty.name})
                     .asFlow()
+                    ${
+                definition.dataProperties
+                    .filterIsInstance<ListPropertyDefinition>()
+                    .filter { it.isMutable }
+                    .joinToString("\n") {
+                        ".combine(${it.name}AsFlow()) { record, _ -> record }"
+                    }
+            }
                     .map { ${definition.simpleName}(${definition.idProperty.name}) }
             """.trimIndent()
         )
