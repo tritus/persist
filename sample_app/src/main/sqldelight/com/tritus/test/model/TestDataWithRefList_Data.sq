@@ -1,0 +1,47 @@
+
+
+CREATE TABLE TestDataWithRefList_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+name TEXT
+);
+
+
+
+createNew:
+INSERT INTO TestDataWithRefList_Data(name)
+VALUES (?);
+
+
+
+getLastRecord:
+SELECT * FROM TestDataWithRefList_Data ORDER BY id DESC LIMIT 1;
+
+
+
+getRecord:
+SELECT * FROM TestDataWithRefList_Data WHERE id = ?;
+
+
+
+getName:
+SELECT name FROM TestDataWithRefList_Data WHERE id = ?;
+
+
+
+getDescriptions:
+SELECT value FROM TestDataWithRefList_descriptions_Data WHERE ref_id = ?;
+
+
+
+setName:
+UPDATE TestDataWithRefList_Data SET name = ? WHERE id = ?;
+
+
+
+deleteAllDescriptions:
+DELETE FROM TestDataWithRefList_descriptions_Data WHERE ref_id = ?;
+
+
+setItemDescriptions:
+INSERT INTO TestDataWithRefList_descriptions_Data(ref_id, value) VALUES (?, ?);
+

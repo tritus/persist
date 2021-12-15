@@ -2,12 +2,17 @@ package com.tritus.test.factory
 
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
+import com.tritus.test.model.ListPropertyDefinition
 import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.model.PersistentPropertyDefinition
+import com.tritus.test.model.PrimitivePropertyDefinition
+import com.tritus.test.model.PropertyTypeDefinition
 
 internal object DataExtensionsFactory {
     fun create(
@@ -23,6 +28,7 @@ internal object DataExtensionsFactory {
             .addImport("com.squareup.sqldelight.runtime.coroutines", "asFlow")
             .addImport("kotlinx.coroutines.flow", "map")
             .addImport("kotlinx.coroutines.flow", "distinctUntilChanged")
+            .addImport("kotlinx.coroutines.flow", "combine")
             .build()
         environment.codeGenerator.createNewFile(
             Dependencies(true, definition.containingFile),
@@ -50,28 +56,78 @@ internal object DataExtensionsFactory {
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition,
         allDefinitions: Sequence<PersistentDataDefinition>
+    ): FunSpec = when (property) {
+        is ListPropertyDefinition -> createListPropertyAsFlowFunSpec(property, definition, allDefinitions)
+        is PrimitivePropertyDefinition -> createPrimitivePropertyAsFlowFunSpec(property, definition, allDefinitions)
+    }
+
+    private fun createListPropertyAsFlowFunSpec(
+        property: ListPropertyDefinition,
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
     ) = FunSpec.builder("${property.name}AsFlow")
         .receiver(definition.className)
-        .returns(ClassName("kotlinx.coroutines.flow", "Flow").parameterizedBy(property.typeName))
+        .returns(
+            ClassName("kotlinx.coroutines.flow", "Flow")
+                .parameterizedBy(property.interfaceTypeName())
+        )
         .addCode(
             """
                 return ${PersistDatabaseProviderFactory.classSimpleName}
                     .getDatabase()
                     .${definition.databaseQueriesMethodName}
-                    .${property.getterMethodName}(id)
+                    .${property.getterMethodName}(${definition.idProperty.name})
+                    .asFlow()
+                    .map { newItemsQuery ->
+                        val newItems = newItemsQuery.executeAsList()
+                        ${
+                if (property.itemTypeDefinition.isARelationship) {
+                    "newItems.map { ${property.itemTypeDefinition.typeName}(it) }"
+                } else if (property.itemTypeDefinition.typeName.isNullable) {
+                    "newItems.map { it.${property.name} }"
+                } else {
+                    "newItems"
+                }
+            } 
+                    }
+                    .distinctUntilChanged(${
+                if (property.itemTypeDefinition.isARelationship) {
+                    val idName = property.itemTypeDefinition.extractIdName(property, definition, allDefinitions)
+                    "{ old, new -> old.map { it.$idName } == new.map { it.$idName } }"
+                } else {
+                    ""
+                }
+            })
+            """.trimIndent()
+        )
+        .build()
+
+    private fun createPrimitivePropertyAsFlowFunSpec(
+        property: PrimitivePropertyDefinition,
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
+    ) = FunSpec.builder("${property.name}AsFlow")
+        .receiver(definition.className)
+        .returns(ClassName("kotlinx.coroutines.flow", "Flow").parameterizedBy(property.typeDefinition.typeName))
+        .addCode(
+            """
+                return ${PersistDatabaseProviderFactory.classSimpleName}
+                    .getDatabase()
+                    .${definition.databaseQueriesMethodName}
+                    .${property.getterMethodName}(${definition.idProperty.name})
                     .asFlow()
                     .map { ${
-                if (property.isARelationship) {
-                    "${property.typeName}(it.executeAsOne())"
-                } else if (property.typeName.isNullable) {
+                if (property.typeDefinition.isARelationship) {
+                    "${property.typeDefinition.typeName}(it.executeAsOne())"
+                } else if (property.typeDefinition.typeName.isNullable) {
                     "it.executeAsOne().${property.name}"
                 } else {
                     "it.executeAsOne()"
                 }
             } }
                     .distinctUntilChanged(${
-                if (property.isARelationship) {
-                    val idName = property.extractIdName(definition, allDefinitions)
+                if (property.typeDefinition.isARelationship) {
+                    val idName = property.typeDefinition.extractIdName(property, definition, allDefinitions)
                     "{ old, new -> old.$idName == new.$idName }"
                 } else {
                     ""
@@ -89,9 +145,17 @@ internal object DataExtensionsFactory {
                 return ${PersistDatabaseProviderFactory.classSimpleName}
                     .getDatabase()
                     .${definition.databaseQueriesMethodName}
-                    .getRecord(id)
+                    .getRecord(${definition.idProperty.name})
                     .asFlow()
-                    .map { ${definition.simpleName}(id) }
+                    ${
+                definition.dataProperties
+                    .filterIsInstance<ListPropertyDefinition>()
+                    .filter { it.isMutable }
+                    .joinToString("\n") {
+                        ".combine(${it.name}AsFlow()) { record, _ -> record }"
+                    }
+            }
+                    .map { ${definition.simpleName}(${definition.idProperty.name}) }
             """.trimIndent()
         )
         .build()
@@ -129,28 +193,69 @@ internal object DataExtensionsFactory {
     private fun createNonMutableInterfaceProperty(
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition
+    ) = when (property) {
+        is ListPropertyDefinition -> createNonMutableInterfaceListProperty(property, definition)
+        is PrimitivePropertyDefinition -> createNonMutableInterfacePrimitiveProperty(property, definition)
+    }
+
+    private fun createNonMutableInterfaceListProperty(
+        property: ListPropertyDefinition,
+        definition: PersistentDataDefinition
     ) = """
-        override val ${property.name}: ${property.typeName}
+        override val ${property.name}: List<${property.itemTypeDefinition.typeName}>
+        ${createPropertyGetter(property, definition)}
+    """.trimIndent()
+
+    private fun createNonMutableInterfacePrimitiveProperty(
+        property: PrimitivePropertyDefinition,
+        definition: PersistentDataDefinition
+    ) = """
+        override val ${property.name}: ${property.typeDefinition.typeName}
         ${createPropertyGetter(property, definition)}
     """.trimIndent()
 
     private fun createPropertyGetter(
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition
-    ): String = """
+    ) = when (property) {
+        is ListPropertyDefinition -> createListPropertyGetter(property, definition)
+        is PrimitivePropertyDefinition -> createPrimitivePropertyGetter(property, definition)
+    }
+
+    private fun createListPropertyGetter(
+        property: ListPropertyDefinition,
+        definition: PersistentDataDefinition
+    ) = """
+        get() = ${PersistDatabaseProviderFactory.classSimpleName}
+                    .getDatabase()
+                    .${definition.databaseQueriesMethodName}
+                    .${property.getterMethodName}(${definition.idProperty.name})
+                    .executeAsList()${
+        if (property.itemTypeDefinition.isARelationship) {
+            ".map { ${property.itemTypeDefinition.typeName}(it) }"
+        } else {
+            ""
+        }
+    }
+    """.trimIndent()
+
+    private fun createPrimitivePropertyGetter(
+        property: PrimitivePropertyDefinition,
+        definition: PersistentDataDefinition
+    ) = """
         get() = ${PersistDatabaseProviderFactory.classSimpleName}
             .getDatabase()
             .${definition.databaseQueriesMethodName}
-            .${property.getterMethodName}(id)
+            .${property.getterMethodName}(${definition.idProperty.name})
             .executeAsOne()${
-        if (property.typeName.isNullable) {
+        if (property.typeDefinition.typeName.isNullable) {
             ".${property.name}"
         } else {
             ""
         }
     }${
-        if (property.isARelationship) {
-            ".let { ${property.typeName}(it) }"
+        if (property.typeDefinition.isARelationship) {
+            ".let { ${property.typeDefinition.typeName}(it) }"
         } else {
             ""
         }
@@ -161,22 +266,56 @@ internal object DataExtensionsFactory {
         property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition,
         allDefinitions: Sequence<PersistentDataDefinition>
+    ) = when (property) {
+        is ListPropertyDefinition -> createMutableInterfaceListProperty(property, definition, allDefinitions)
+        is PrimitivePropertyDefinition -> createMutableInterfacePrimitiveProperty(property, definition, allDefinitions)
+    }
+
+    private fun createMutableInterfaceListProperty(
+        property: ListPropertyDefinition,
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
     ) = """
-        override var ${property.name}: ${property.typeName}
+        override var ${property.name}: List<${property.itemTypeDefinition.typeName}>
+        ${createPropertyGetter(property, definition)}
+        set(value) {
+            ${PersistDatabaseProviderFactory.classSimpleName}
+                .getDatabase()
+                .${definition.databaseQueriesMethodName}
+                .${property.deleteMethodName}(${definition.idProperty.name})
+            value.forEach { item ->
+                ${PersistDatabaseProviderFactory.classSimpleName}
+                    .getDatabase()
+                    .${definition.databaseQueriesMethodName}
+                    .${property.itemSetterMethodName}(
+                        ${definition.idProperty.name},
+                        item${property.valueAccessor(definition, allDefinitions)}
+                    )
+            }
+        }
+    """.trimIndent()
+
+    private fun createMutableInterfacePrimitiveProperty(
+        property: PrimitivePropertyDefinition,
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
+    ) = """
+        override var ${property.name}: ${property.typeDefinition.typeName}
         ${createPropertyGetter(property, definition)}
         set(value) = ${PersistDatabaseProviderFactory.classSimpleName}
             .getDatabase()
             .${definition.databaseQueriesMethodName}
             .${property.setterMethodName}(value${
-        if (property.isARelationship) {
-            ".${property.extractIdName(definition, allDefinitions)}"
+        if (property.typeDefinition.isARelationship) {
+            ".${property.typeDefinition.extractIdName(property, definition, allDefinitions)}"
         } else {
             ""
         }
-    }, id)
+    }, ${definition.idProperty.name})
     """.trimIndent()
 
-    private fun PersistentPropertyDefinition.extractIdName(
+    private fun PropertyTypeDefinition.extractIdName(
+        property: PersistentPropertyDefinition,
         definition: PersistentDataDefinition,
         allDefinitions: Sequence<PersistentDataDefinition>
     ) = allDefinitions
@@ -186,7 +325,7 @@ internal object DataExtensionsFactory {
         .let { idName ->
             require(idName != null) {
                 """
-                    Could not find data type of $name defined in ${definition.containingFile}.
+                    Could not find data type of ${property.name} defined in ${definition.containingFile}.
                     Please be sure that $typeName is annotated with @Persist
                 """.trimIndent()
             }
@@ -199,35 +338,78 @@ internal object DataExtensionsFactory {
     ): FunSpec {
         val newBuilder = FunSpec.builder(definition.simpleName)
         definition.dataProperties.forEach { property ->
-            newBuilder.addParameter(property.name, property.typeName)
+            newBuilder.addParameter(property.name, property.interfaceTypeName())
         }
         newBuilder.returns(definition.className)
         val realArgumentsList = definition.dataProperties
-            .joinToString { property ->
-                if (property.isARelationship) {
-                    "${property.name}.${property.extractIdName(definition, allDefinitions)}"
-                } else {
-                    property.name
-                }
-            }
+            .filterIsInstance<PrimitivePropertyDefinition>()
+            .joinToString { property -> property.realArgument(definition, allDefinitions) }
         newBuilder.addCode(
             """
             val database = ${PersistDatabaseProviderFactory.classSimpleName}
                 .getDatabase()
             val rawData = database
                 .${definition.databaseQueriesMethodName}
-                .transactionWithResult<${definition.dataHolderClassName}> {
+                .transactionWithResult<${definition.dataholderClassName}> {
                     database
                         .${definition.databaseQueriesMethodName}
                         .createNew($realArgumentsList)
-                    database
+                    val createdEntity = database
                         .${definition.databaseQueriesMethodName}
                         .getLastRecord()
                         .executeAsOne()
+                    ${createNewListProperties(definition, allDefinitions)}
+                    createdEntity
                 }
-            return ${definition.simpleName}(rawData.id)
+            return ${definition.simpleName}(rawData.${definition.idProperty.name})
             """.trimIndent()
         )
         return newBuilder.build()
+    }
+
+    private fun createNewListProperties(
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
+    ): String = definition.dataProperties
+        .filterIsInstance<ListPropertyDefinition>()
+        .joinToString("\n") { property ->
+            """
+                database
+                    .${definition.databaseQueriesMethodName}
+                    .${property.deleteMethodName}(createdEntity.${definition.idProperty.name})
+                ${property.name}.forEach { item ->
+                    database
+                        .${definition.databaseQueriesMethodName}
+                        .${property.itemSetterMethodName}(
+                            createdEntity.${definition.idProperty.name}, 
+                            item${property.valueAccessor(definition, allDefinitions)}
+                        )
+                }
+            """.trimIndent()
+        }
+
+    private fun ListPropertyDefinition.valueAccessor(
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
+    ) = if (itemTypeDefinition.isARelationship) {
+        ".${itemTypeDefinition.extractIdName(this, definition, allDefinitions)}"
+    } else {
+        ""
+    }
+
+    private fun PersistentPropertyDefinition.interfaceTypeName() = when (this) {
+        is ListPropertyDefinition -> ClassName
+            .bestGuess(List::class.qualifiedName!!)
+            .plusParameter(itemTypeDefinition.typeName)
+        is PrimitivePropertyDefinition -> typeDefinition.typeName
+    }
+
+    private fun PrimitivePropertyDefinition.realArgument(
+        definition: PersistentDataDefinition,
+        allDefinitions: Sequence<PersistentDataDefinition>
+    ): String = if (typeDefinition.isARelationship) {
+        "${name}.${typeDefinition.extractIdName(this, definition, allDefinitions)}"
+    } else {
+        name
     }
 }

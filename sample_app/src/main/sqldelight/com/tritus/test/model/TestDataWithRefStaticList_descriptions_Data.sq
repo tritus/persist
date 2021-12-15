@@ -1,0 +1,6 @@
+
+CREATE TABLE TestDataWithRefStaticList_descriptions_Data (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ref_id INTEGER NOT NULL,
+value INTEGER NOT NULL NOT NULL
+);

@@ -4,10 +4,9 @@ import com.tritus.test.annotation.Persist
 import com.tritus.test.annotation.PersistentId
 
 @Persist
-interface VariableTestData {
+interface TestDataWithPrimitiveStaticList {
   @PersistentId
   val id: Long
   var name: String?
-  var description: String
+  val descriptions: List<String>
 }
-
