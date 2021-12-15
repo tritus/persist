@@ -115,6 +115,7 @@ fun someMethodInApp() {
     val previouslyCreatedPerson = Person(personId)
 }   
 ```
+Example of usages can also be found in the `sample_app` module of this project.
 ___
 ##Limitations
 - Currently, this library does not support migration of saved data. This is my major priority.
@@ -126,6 +127,6 @@ ___
 ##Credits
 This library uses different other beautiful libraries under the hood:
 
-- cashapp/sqldelight : https://github.com/cashapp/sqldelight/
-- google/ksp : https://github.com/google/ksp/
-- square/kotlinpoet : https://github.com/square/kotlinpoet/
+- [cashapp/sqldelight](https://github.com/cashapp/sqldelight/)
+- [google/ksp](https://github.com/google/ksp/)
+- [square/kotlinpoet](https://github.com/square/kotlinpoet/)
