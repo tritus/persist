@@ -106,6 +106,7 @@ fun someMethodInApp() {
         clothes = listOf(
             Cloth("pants", "1.20"),
             Cloth("shoes", "0.33")
+        )
     )
     
     val personId = newPerson.id
@@ -122,7 +123,7 @@ ___
 - It should work on any project using kotlin (android, multiplatform, native, etc.) but it hasn't been tested yet
 - After annotating your data to make it persistent, you may want to build your app to have access to the constructors for your data. An IntelliJ plugin is intended to be developped to prevent this issue but it is quite low in my priorities.
 - Currently, the plugin and the lib are not published and is only accessible through this project. When I'll be happy with the state of this lib, I'll publish it on regular repositories. 
-- A lot of generated files are added to your project while building in a sqldelight folder. I may try to restrain this behavior later on. Same, not a priority.
+- A lot of generated files are added to your project in a sqldelight folder. I may try to restrain this behavior later on. Same, not a priority.
 ___
 ## Credits
 This library uses different other beautiful libraries under the hood:
