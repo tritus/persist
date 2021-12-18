@@ -1,9 +1,7 @@
 package com.tritus.test.factory
 
-import com.tritus.test.model.ListPropertyDefinition
 import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.model.PersistentPropertyDefinition
-import com.tritus.test.model.PrimitivePropertyDefinition
 import com.tritus.test.utils.trimLines
 
 internal object SQLDeclarationFactory {
@@ -46,15 +44,19 @@ internal object SQLDeclarationFactory {
         val idDefinition =
             "${definition.idProperty.name} ${definition.idProperty.typeDefinition.sqlTypeName} PRIMARY KEY AUTOINCREMENT"
         val propertyDefinitions = definition.dataProperties
-            .filterIsInstance<PrimitivePropertyDefinition>()
+            .filterIsInstance<PersistentPropertyDefinition.Primitive>()
             .map { property -> "${property.name} ${property.typeDefinition.sqlTypeName}" }
         return (listOf(idDefinition) + propertyDefinitions).joinToString(",\n")
     }
 
     private fun createInsertMethodBlock(definition: PersistentDataDefinition): String = """
         createNew:
-        INSERT INTO ${definition.dataholderClassName}(${definition.dataProperties.filterIsInstance<PrimitivePropertyDefinition>().joinToString { it.name }})
-        VALUES (${definition.dataProperties.filterIsInstance<PrimitivePropertyDefinition>().joinToString { "?" }});
+        INSERT INTO ${definition.dataholderClassName}(${
+        definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { it.name }
+    })
+        VALUES (${
+        definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { "?" }
+    });
     """.trimLines()
 
     private fun createGettersBlock(definition: PersistentDataDefinition): String = definition
@@ -64,18 +66,18 @@ internal object SQLDeclarationFactory {
     private fun createGetterBlock(
         propertyDefinition: PersistentPropertyDefinition,
         dataDefinition: PersistentDataDefinition
-    ): String = when(propertyDefinition) {
-        is ListPropertyDefinition -> createListGetterBlock(propertyDefinition)
-        is PrimitivePropertyDefinition -> createPrimitiveGetterBlock(propertyDefinition, dataDefinition)
+    ): String = when (propertyDefinition) {
+        is PersistentPropertyDefinition.List -> createListGetterBlock(propertyDefinition)
+        is PersistentPropertyDefinition.Primitive -> createPrimitiveGetterBlock(propertyDefinition, dataDefinition)
     }
 
-    private fun createListGetterBlock(propertyDefinition: ListPropertyDefinition) = """
+    private fun createListGetterBlock(propertyDefinition: PersistentPropertyDefinition.List) = """
         ${propertyDefinition.getterMethodName}:
         SELECT ${SQLJoinDeclarationFactory.VALUE_COLUMN_NAME} FROM ${propertyDefinition.dataholderClassName} WHERE ${SQLJoinDeclarationFactory.REFERENCE_ID_COLUMN_NAME} = ?;
     """.trimLines()
 
     private fun createPrimitiveGetterBlock(
-        propertyDefinition: PrimitivePropertyDefinition,
+        propertyDefinition: PersistentPropertyDefinition.Primitive,
         dataDefinition: PersistentDataDefinition
     ) = """
         ${propertyDefinition.getterMethodName}:
@@ -90,25 +92,25 @@ internal object SQLDeclarationFactory {
         propertyDefinition: PersistentPropertyDefinition,
         dataDefinition: PersistentDataDefinition
     ): String = when (propertyDefinition) {
-        is ListPropertyDefinition -> """
+        is PersistentPropertyDefinition.List -> """
             ${createListItemDeleteBlock(propertyDefinition)}
             ${createListItemSetterBlock(propertyDefinition)}
         """.trimIndent()
-        is PrimitivePropertyDefinition -> createPrimitiveSetterBlock(propertyDefinition, dataDefinition)
+        is PersistentPropertyDefinition.Primitive -> createPrimitiveSetterBlock(propertyDefinition, dataDefinition)
     }
 
-    private fun createListItemDeleteBlock(propertyDefinition: ListPropertyDefinition) = """
+    private fun createListItemDeleteBlock(propertyDefinition: PersistentPropertyDefinition.List) = """
         ${propertyDefinition.deleteMethodName}:
         DELETE FROM ${propertyDefinition.dataholderClassName} WHERE ${SQLJoinDeclarationFactory.REFERENCE_ID_COLUMN_NAME} = ?;
     """.trimLines()
 
-    private fun createListItemSetterBlock(propertyDefinition: ListPropertyDefinition) = """
+    private fun createListItemSetterBlock(propertyDefinition: PersistentPropertyDefinition.List) = """
         ${propertyDefinition.itemSetterMethodName}:
         INSERT INTO ${propertyDefinition.dataholderClassName}(${SQLJoinDeclarationFactory.REFERENCE_ID_COLUMN_NAME}, ${SQLJoinDeclarationFactory.VALUE_COLUMN_NAME}) VALUES (?, ?);
     """.trimLines()
 
     private fun createPrimitiveSetterBlock(
-        propertyDefinition: PrimitivePropertyDefinition,
+        propertyDefinition: PersistentPropertyDefinition.Primitive,
         dataDefinition: PersistentDataDefinition
     ) = """
         ${propertyDefinition.setterMethodName}:

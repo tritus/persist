@@ -3,14 +3,15 @@ package com.tritus.test.adapter
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.tritus.test.adapter.PersistentDataDefinitionAdapter.sqlDefinitionsFolderPath
-import com.tritus.test.model.ListPropertyDefinition
 import com.tritus.test.model.PersistentPropertyDefinition
-import com.tritus.test.model.PrimitivePropertyDefinition
 import com.tritus.test.model.PropertyTypeDefinition
 import java.io.File
 
 internal object PersistentPropertyDefinitionAdapter {
-    fun KSPropertyDeclaration.toPersistentPropertyDefinition(parentDeclaration: KSClassDeclaration, persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentPropertyDefinition {
+    fun KSPropertyDeclaration.toPersistentPropertyDefinition(
+        parentDeclaration: KSClassDeclaration,
+        persistAnnotatedSymbols: Sequence<KSClassDeclaration>
+    ): PersistentPropertyDefinition {
         val isAList = type.resolve().declaration.qualifiedName?.asString() == List::class.qualifiedName
         return if (isAList) {
             toListPropertyDefinition(parentDeclaration, persistAnnotatedSymbols)
@@ -19,11 +20,11 @@ internal object PersistentPropertyDefinitionAdapter {
         }
     }
 
-    fun KSPropertyDeclaration.toPrimitivePropertyDefinition(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PrimitivePropertyDefinition {
+    fun KSPropertyDeclaration.toPrimitivePropertyDefinition(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentPropertyDefinition.Primitive {
         val name = simpleName.asString()
         val parameterType = type.resolve()
         val capitalizedName = name.replaceFirstChar { it.titlecase() }
-        return PrimitivePropertyDefinition(
+        return PersistentPropertyDefinition.Primitive(
             name = name,
             typeDefinition = parameterType.toTypeDefinition(parent?.location, persistAnnotatedSymbols),
             getterMethodName = "get$capitalizedName",
@@ -53,7 +54,10 @@ internal object PersistentPropertyDefinitionAdapter {
         )
     }
 
-    private fun KSPropertyDeclaration.toListPropertyDefinition(parentDeclaration: KSClassDeclaration, persistAnnotatedSymbols: Sequence<KSClassDeclaration>): ListPropertyDefinition {
+    private fun KSPropertyDeclaration.toListPropertyDefinition(
+        parentDeclaration: KSClassDeclaration,
+        persistAnnotatedSymbols: Sequence<KSClassDeclaration>
+    ): PersistentPropertyDefinition.List {
         val name = simpleName.asString()
         val parameterType = type.resolve()
         val parameterTypeDeclaration = parameterType.declaration
@@ -73,7 +77,7 @@ internal object PersistentPropertyDefinitionAdapter {
         }
         val itemTypeDefinition = itemType.resolve().toTypeDefinition(parent?.location, persistAnnotatedSymbols)
         val dataholderClassName = "${parentDeclaration.simpleName.asString()}_${name}_Data"
-        return ListPropertyDefinition(
+        return PersistentPropertyDefinition.List(
             name = name,
             getterMethodName = "get$capitalizedName",
             setterMethodName = "set$capitalizedName",

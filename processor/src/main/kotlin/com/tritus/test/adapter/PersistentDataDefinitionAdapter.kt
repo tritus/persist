@@ -6,7 +6,7 @@ import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPrimitivePropertyDefinition
 import com.tritus.test.annotation.persistentIdQualifiedName
-import com.tritus.test.model.PrimitivePropertyDefinition
+import com.tritus.test.model.PersistentPropertyDefinition
 import java.io.File
 
 internal object PersistentDataDefinitionAdapter {
@@ -53,17 +53,17 @@ internal object PersistentDataDefinitionAdapter {
         require(containingClassFile != null) { "Containing file of ${qualifiedName?.asString()} should not be null" }
         return File(
             containingClassFile.filePath
-            .replace(pathInSource(), "")
-            .split("/")
-            .dropLast(3)
-            .plus("sqldelight")
-            .joinToString("/")
+                .replace(pathInSource(), "")
+                .split("/")
+                .dropLast(3)
+                .plus("sqldelight")
+                .joinToString("/")
         )
     }
 
     private fun KSClassDeclaration.pathInSource(): String = packageName.asString().replace(".", "/")
 
-    private fun KSClassDeclaration.extractIdProperty(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PrimitivePropertyDefinition {
+    private fun KSClassDeclaration.extractIdProperty(persistAnnotatedSymbols: Sequence<KSClassDeclaration>): PersistentPropertyDefinition.Primitive {
         val idProperties = getAllProperties().filter { property ->
             property.annotations.any { annotationSymbol ->
                 val annotation = annotationSymbol.annotationType.resolve().declaration.qualifiedName?.asString()
@@ -83,7 +83,9 @@ internal object PersistentDataDefinitionAdapter {
             """
                 Too many id properties found on ${qualifiedName?.asString()}.
                 There should be no more than one persistent id per persisted object.
-                Current id declarations on ${simpleName.asString()} properties [${idProperties.map { it.simpleName.asString() }.joinToString()}]
+                Current id declarations on ${simpleName.asString()} properties [${
+                idProperties.map { it.simpleName.asString() }.joinToString()
+            }]
             """.trimIndent()
         }
         val idProperty = idProperties.first()

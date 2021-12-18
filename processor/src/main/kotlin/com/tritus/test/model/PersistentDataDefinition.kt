@@ -12,7 +12,7 @@ internal data class PersistentDataDefinition(
     val packageName: String,
     val className: ClassName,
     val containingFile: KSFile,
-    val idProperty: PrimitivePropertyDefinition,
+    val idProperty: PersistentPropertyDefinition.Primitive,
     val dataProperties: List<PersistentPropertyDefinition>,
     val sqlDelightFolder: File,
     val sqlDefinitionFile: File
