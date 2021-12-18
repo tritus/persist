@@ -5,7 +5,7 @@ import com.tritus.test.annotation.PersistentId
 
 @Persist
 interface DataWithChangingRelation {
-  @PersistentId
-  val id: Long
-  var testData: TestData
+    @PersistentId
+    val id: Long
+    var testData: TestData
 }

@@ -1,6 +1,10 @@
 package com.tritus.test.adapter
 
-import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.Location
+import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ClassName
 import com.tritus.test.adapter.PersistentDataDefinitionAdapter.sqlDefinitionsFolderPath
 import com.tritus.test.model.PersistentPropertyDefinition
