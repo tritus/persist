@@ -52,10 +52,10 @@ internal object SQLDeclarationFactory {
     private fun createInsertMethodBlock(definition: PersistentDataDefinition): String = """
         createNew:
         INSERT INTO ${definition.dataholderClassName}(${
-        definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { it.name }
+    definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { it.name }
     })
         VALUES (${
-        definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { "?" }
+    definition.dataProperties.filterIsInstance<PersistentPropertyDefinition.Primitive>().joinToString { "?" }
     });
     """.trimLines()
 

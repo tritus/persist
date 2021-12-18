@@ -46,11 +46,11 @@ internal object PersistDatabaseProviderFactory {
         .addCode(
             """
             val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-            ${databaseName}.Schema.create(driver)
-            val newDatabase = ${databaseName}(driver)
+            $databaseName.Schema.create(driver)
+            val newDatabase = $databaseName(driver)
             cachedDatabase = newDatabase
             return newDatabase
-        """.trimIndent()
+            """.trimIndent()
         )
         .build()
 

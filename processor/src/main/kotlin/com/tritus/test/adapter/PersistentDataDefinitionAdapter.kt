@@ -2,10 +2,10 @@ package com.tritus.test.adapter
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
-import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPersistentPropertyDefinition
 import com.tritus.test.adapter.PersistentPropertyDefinitionAdapter.toPrimitivePropertyDefinition
 import com.tritus.test.annotation.persistentIdQualifiedName
+import com.tritus.test.model.PersistentDataDefinition
 import com.tritus.test.model.PersistentPropertyDefinition
 import java.io.File
 
@@ -84,7 +84,7 @@ internal object PersistentDataDefinitionAdapter {
                 Too many id properties found on ${qualifiedName?.asString()}.
                 There should be no more than one persistent id per persisted object.
                 Current id declarations on ${simpleName.asString()} properties [${
-                idProperties.map { it.simpleName.asString() }.joinToString()
+            idProperties.map { it.simpleName.asString() }.joinToString()
             }]
             """.trimIndent()
         }

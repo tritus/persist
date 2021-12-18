@@ -82,22 +82,22 @@ internal object DataExtensionsFactory {
                     .map { newItemsQuery ->
                         val newItems = newItemsQuery.executeAsList()
                         ${
-                if (property.itemTypeDefinition.isARelationship) {
-                    "newItems.map { ${property.itemTypeDefinition.typeName}(it) }"
-                } else if (property.itemTypeDefinition.typeName.isNullable) {
-                    "newItems.map { it.${property.name} }"
-                } else {
-                    "newItems"
-                }
+            if (property.itemTypeDefinition.isARelationship) {
+                "newItems.map { ${property.itemTypeDefinition.typeName}(it) }"
+            } else if (property.itemTypeDefinition.typeName.isNullable) {
+                "newItems.map { it.${property.name} }"
+            } else {
+                "newItems"
+            }
             } 
                     }
                     .distinctUntilChanged(${
-                if (property.itemTypeDefinition.isARelationship) {
-                    val idName = property.itemTypeDefinition.extractIdName(property, definition, allDefinitions)
-                    "{ old, new -> old.map { it.$idName } == new.map { it.$idName } }"
-                } else {
-                    ""
-                }
+            if (property.itemTypeDefinition.isARelationship) {
+                val idName = property.itemTypeDefinition.extractIdName(property, definition, allDefinitions)
+                "{ old, new -> old.map { it.$idName } == new.map { it.$idName } }"
+            } else {
+                ""
+            }
             })
             """.trimIndent()
         )
@@ -118,21 +118,21 @@ internal object DataExtensionsFactory {
                     .${property.getterMethodName}(${definition.idProperty.name})
                     .asFlow()
                     .map { ${
-                if (property.typeDefinition.isARelationship) {
-                    "${property.typeDefinition.typeName}(it.executeAsOne())"
-                } else if (property.typeDefinition.typeName.isNullable) {
-                    "it.executeAsOne().${property.name}"
-                } else {
-                    "it.executeAsOne()"
-                }
+            if (property.typeDefinition.isARelationship) {
+                "${property.typeDefinition.typeName}(it.executeAsOne())"
+            } else if (property.typeDefinition.typeName.isNullable) {
+                "it.executeAsOne().${property.name}"
+            } else {
+                "it.executeAsOne()"
+            }
             } }
                     .distinctUntilChanged(${
-                if (property.typeDefinition.isARelationship) {
-                    val idName = property.typeDefinition.extractIdName(property, definition, allDefinitions)
-                    "{ old, new -> old.$idName == new.$idName }"
-                } else {
-                    ""
-                }
+            if (property.typeDefinition.isARelationship) {
+                val idName = property.typeDefinition.extractIdName(property, definition, allDefinitions)
+                "{ old, new -> old.$idName == new.$idName }"
+            } else {
+                ""
+            }
             })
             """.trimIndent()
         )
@@ -149,12 +149,12 @@ internal object DataExtensionsFactory {
                     .getRecord(${definition.idProperty.name})
                     .asFlow()
                     ${
-                definition.dataProperties
-                    .filterIsInstance<PersistentPropertyDefinition.List>()
-                    .filter { it.isMutable }
-                    .joinToString("\n") {
-                        ".combine(${it.name}AsFlow()) { record, _ -> record }"
-                    }
+            definition.dataProperties
+                .filterIsInstance<PersistentPropertyDefinition.List>()
+                .filter { it.isMutable }
+                .joinToString("\n") {
+                    ".combine(${it.name}AsFlow()) { record, _ -> record }"
+                }
             }
                     .map { ${definition.simpleName}(${definition.idProperty.name}) }
             """.trimIndent()
@@ -232,11 +232,11 @@ internal object DataExtensionsFactory {
                     .${definition.databaseQueriesMethodName}
                     .${property.getterMethodName}(${definition.idProperty.name})
                     .executeAsList()${
-        if (property.itemTypeDefinition.isARelationship) {
-            ".map { ${property.itemTypeDefinition.typeName}(it) }"
-        } else {
-            ""
-        }
+    if (property.itemTypeDefinition.isARelationship) {
+        ".map { ${property.itemTypeDefinition.typeName}(it) }"
+    } else {
+        ""
+    }
     }
     """.trimIndent()
 
@@ -249,17 +249,17 @@ internal object DataExtensionsFactory {
             .${definition.databaseQueriesMethodName}
             .${property.getterMethodName}(${definition.idProperty.name})
             .executeAsOne()${
-        if (property.typeDefinition.typeName.isNullable) {
-            ".${property.name}"
-        } else {
-            ""
-        }
+    if (property.typeDefinition.typeName.isNullable) {
+        ".${property.name}"
+    } else {
+        ""
+    }
     }${
-        if (property.typeDefinition.isARelationship) {
-            ".let { ${property.typeDefinition.typeName}(it) }"
-        } else {
-            ""
-        }
+    if (property.typeDefinition.isARelationship) {
+        ".let { ${property.typeDefinition.typeName}(it) }"
+    } else {
+        ""
+    }
     }
     """.trimIndent()
 
@@ -311,11 +311,11 @@ internal object DataExtensionsFactory {
             .getDatabase()
             .${definition.databaseQueriesMethodName}
             .${property.setterMethodName}(value${
-        if (property.typeDefinition.isARelationship) {
-            ".${property.typeDefinition.extractIdName(property, definition, allDefinitions)}"
-        } else {
-            ""
-        }
+    if (property.typeDefinition.isARelationship) {
+        ".${property.typeDefinition.extractIdName(property, definition, allDefinitions)}"
+    } else {
+        ""
+    }
     }, ${definition.idProperty.name})
     """.trimIndent()
 
@@ -403,9 +403,10 @@ internal object DataExtensionsFactory {
     }
 
     private fun PersistentPropertyDefinition.interfaceTypeName() = when (this) {
-        is PersistentPropertyDefinition.List -> ClassName
-            .bestGuess(List::class.qualifiedName!!)
-            .plusParameter(itemTypeDefinition.typeName)
+        is PersistentPropertyDefinition.List ->
+            ClassName
+                .bestGuess(List::class.qualifiedName!!)
+                .plusParameter(itemTypeDefinition.typeName)
         is PersistentPropertyDefinition.Primitive -> typeDefinition.typeName
     }
 
@@ -413,7 +414,7 @@ internal object DataExtensionsFactory {
         definition: PersistentDataDefinition,
         allDefinitions: Sequence<PersistentDataDefinition>
     ): String = if (typeDefinition.isARelationship) {
-        "${name}.${typeDefinition.extractIdName(this, definition, allDefinitions)}"
+        "$name.${typeDefinition.extractIdName(this, definition, allDefinitions)}"
     } else {
         name
     }

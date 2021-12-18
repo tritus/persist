@@ -10,4 +10,3 @@ interface VariableTestData {
     var name: String?
     var description: String
 }
-
