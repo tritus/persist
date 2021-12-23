@@ -4,9 +4,11 @@ import com.squareup.sqldelight.gradle.SqlDelightExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 
-class PersistPlugin: Plugin<Project> {
+class PersistPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         with(project) {
             apply(plugin = "com.google.devtools.ksp")
