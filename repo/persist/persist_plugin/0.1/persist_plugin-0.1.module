@@ -10,7 +10,7 @@
   },
   "createdBy": {
     "gradle": {
-      "version": "7.3.1"
+      "version": "7.4.2"
     }
   },
   "variants": [
@@ -29,11 +29,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 13673,
-          "sha512": "0b4ad9075488170a5b03e4dd9150f3c3cd713827a3853fa224db823eba07a8bd4eb065449b037bce02b55b55e806d504b5d0569677a821d443336a06f5180293",
-          "sha256": "f7c46a7be9978dc0f9f8f4411ffc6b32efcd62f39c83d132f70894b84979bd75",
-          "sha1": "6fd06b3e5137eb3a85c6a2437d20bcac83a055b9",
-          "md5": "a8f5f7c69ae82ef16783fbed45bb52c3"
+          "size": 18243,
+          "sha512": "ceb28b3ae0b11722ef4175819fecf43c61cc31b2b6d2d71d7939fb7282ad6598bf2a2f6551913a33a7ee08df655d3a58ebd8204586a0f504eb4aae5360c22a00",
+          "sha256": "5986db83573939ac0bdd9e3075088610b9c92e9417d0fa3dda361c940a6f2799",
+          "sha1": "6fe226965ff2fd11264222300c3b57fe5ba8a822",
+          "md5": "367b7bee8bcfe298878e164717a81a8f"
         }
       ]
     },
@@ -75,11 +75,11 @@
         {
           "name": "persist_plugin-0.1.jar",
           "url": "persist_plugin-0.1.jar",
-          "size": 13673,
-          "sha512": "0b4ad9075488170a5b03e4dd9150f3c3cd713827a3853fa224db823eba07a8bd4eb065449b037bce02b55b55e806d504b5d0569677a821d443336a06f5180293",
-          "sha256": "f7c46a7be9978dc0f9f8f4411ffc6b32efcd62f39c83d132f70894b84979bd75",
-          "sha1": "6fd06b3e5137eb3a85c6a2437d20bcac83a055b9",
-          "md5": "a8f5f7c69ae82ef16783fbed45bb52c3"
+          "size": 18243,
+          "sha512": "ceb28b3ae0b11722ef4175819fecf43c61cc31b2b6d2d71d7939fb7282ad6598bf2a2f6551913a33a7ee08df655d3a58ebd8204586a0f504eb4aae5360c22a00",
+          "sha256": "5986db83573939ac0bdd9e3075088610b9c92e9417d0fa3dda361c940a6f2799",
+          "sha1": "6fe226965ff2fd11264222300c3b57fe5ba8a822",
+          "md5": "367b7bee8bcfe298878e164717a81a8f"
         }
       ]
     }

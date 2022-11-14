@@ -27,12 +27,6 @@ dependencies {
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("persistPlugin") {
-            from(components["java"])
-        }
-    }
-
     repositories {
         maven {
             name = "myRepo"
